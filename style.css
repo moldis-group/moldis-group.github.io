@@ -260,3 +260,42 @@ body.developer-copy a:active
     text-decoration: none;
     cursor: pointer;
 }
+/* Teaching dropdown */
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.nav-dropdown-button {
+    display: block;
+}
+
+.nav-dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    min-width: 210px;
+    background: #900;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.20);
+}
+
+.nav-dropdown-content a {
+    display: block;
+    white-space: nowrap;
+    padding: 12px 20px;
+    background: #900;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.nav-dropdown-content a:hover {
+    background: #00004d;
+}
+
+.nav-dropdown:hover .nav-dropdown-content,
+.nav-dropdown:focus-within .nav-dropdown-content {
+    display: block;
+}
