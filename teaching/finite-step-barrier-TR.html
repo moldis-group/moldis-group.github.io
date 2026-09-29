@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Quantum Barrier Transmission and Reflection</title>
+
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    async>
+  </script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 950px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+    }
+
+    #plot {
+      width: 100%;
+      height: 600px;
+    }
+
+    .controls {
+      margin: 25px 0;
+      padding: 15px 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .formula-box {
+      margin: 25px 0;
+      padding: 18px 24px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f8f8f8;
+    }
+
+    .note {
+      font-size: 0.95em;
+    }
+
+    input[type="range"] {
+      width: 450px;
+      max-width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Transmission and Reflection through a Finite Rectangular Barrier</h2>
+
+<p>
+  Define the dimensionless energy
+</p>
+
+\[
+x=\frac{E}{V_0},
+\]
+
+<p>and the dimensionless barrier parameter</p>
+
+\[
+\boxed{
+\beta=
+\frac{a\sqrt{2mV_0}}{\hbar}
+}.
+\]
+
+<p>
+  The graph below covers both the tunnelling region
+  \(E<V_0\) and the above-barrier region \(E>V_0\).
+</p>
+
+
+<!-- ====================================================== -->
+<!-- Exact formula below barrier -->
+<!-- ====================================================== -->
+
+<div class="formula-box">
+
+<h3>1. Tunnelling region: \( E < V_0\)</h3>
+
+<p>The exact transmission coefficient is</p>
+
+\[
+T=
+\left[
+1+
+\frac{V_0^2}
+     {4E(V_0-E)}
+\sinh^2(ka)
+\right]^{-1},
+\]
+
+where
+
+\[
+k=
+\frac{\sqrt{2m(V_0-E)}}{\hbar}.
+\]
+
+<p>
+Using \(x=E/V_0\) and
+\(\beta=a\sqrt{2mV_0}/\hbar\),
+</p>
+
+\[
+ka=\beta\sqrt{1-x}.
+\]
+
+<p>Therefore</p>
+
+\[
+\boxed{
+T_{\rm exact}(x)
+=
+\left[
+1+
+\frac{
+\sinh^2\!\left(
+\beta\sqrt{1-x}
+\right)}
+{4x(1-x)}
+\right]^{-1}
+},
+\qquad 0<x<1.
+\]
+
+<p>Since probability current is conserved,</p>
+
+\[
+\boxed{
+R_{\rm exact}=1-T_{\rm exact}.
+}
+\]
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- Thick barrier approximation -->
+<!-- ====================================================== -->
+
+<div class="formula-box">
+
+<h3>2. Thick-barrier approximation</h3>
+
+<p>
+If
+</p>
+
+\[
+ka\gg1,
+\]
+
+<p>then</p>
+
+\[
+\boxed{
+T_{\rm thick}
+\approx
+16
+\frac{E}{V_0}
+\left(
+1-\frac{E}{V_0}
+\right)
+\exp\left[
+-\frac{2a}{\hbar}
+\sqrt{2m(V_0-E)}
+\right].
+}
+\]
+
+<p>In dimensionless form,</p>
+
+\[
+\boxed{
+T_{\rm thick}(x)
+\approx
+16x(1-x)
+\exp\left[
+-2\beta\sqrt{1-x}
+\right].
+}
+\]
+
+<p>The corresponding approximate reflection coefficient is</p>
+
+\[
+\boxed{
+R_{\rm thick}
+\approx1-T_{\rm thick}.
+}
+\]
+
+<p class="note">
+This approximation requires
+
+\[
+\beta\sqrt{1-x}=ka\gg1.
+\]
+
+It is therefore not reliable close to \(x=1\).
+The dashed curve in the graph is included for comparison with the exact
+result.
+</p>
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- Above barrier -->
+<!-- ====================================================== -->
+
+<div class="formula-box">
+
+<h3>3. Above the barrier: \(E>V_0\)</h3>
+
+<p>Define</p>
+
+\[
+q=
+\frac{\sqrt{2m(E-V_0)}}{\hbar}.
+\]
+
+<p>The exact transmission coefficient is</p>
+
+\[
+T=
+\left[
+1+
+\frac{V_0^2}
+     {4E(E-V_0)}
+\sin^2(qa)
+\right]^{-1}.
+\]
+
+<p>Since</p>
+
+\[
+qa=
+\beta\sqrt{x-1},
+\]
+
+<p>we obtain</p>
+
+\[
+\boxed{
+T_{\rm exact}(x)
+=
+\left[
+1+
+\frac{
+\sin^2\!\left(
+\beta\sqrt{x-1}
+\right)}
+{4x(x-1)}
+\right]^{-1}
+},
+\qquad x>1.
+\]
+
+<p>Again,</p>
+
+\[
+\boxed{
+R_{\rm exact}=1-T_{\rm exact}.
+}
+\]
+
+<p>
+Perfect transmission occurs whenever
+</p>
+
+\[
+qa=n\pi,
+\]
+
+<p>so that</p>
+
+\[
+\boxed{
+T=1,\qquad R=0.
+}
+\]
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- E = V0 -->
+<!-- ====================================================== -->
+
+<div class="formula-box">
+
+<h3>4. At \(E=V_0\)</h3>
+
+<p>
+Both exact formulas have the same finite limiting value:
+</p>
+
+\[
+\boxed{
+T(E=V_0)
+=
+\frac{1}
+{1+\beta^2/4}
+}
+\]
+
+and therefore
+
+\[
+\boxed{
+R(E=V_0)
+=
+1-
+\frac{1}
+{1+\beta^2/4}.
+}
+\]
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- Interactive controls -->
+<!-- ====================================================== -->
+
+<h3>Interactive plot</h3>
+
+<div class="controls">
+
+  <label>
+    <strong>β = </strong>
+    <span id="betaValue">5.0</span>
+  </label>
+
+  <br><br>
+
+  <input
+    id="beta"
+    type="range"
+    min="0.5"
+    max="15"
+    step="0.1"
+    value="5"
+  >
+
+  <p>
+    \[
+    \beta=
+    \frac{a\sqrt{2mV_0}}{\hbar}
+    \]
+  </p>
+
+</div>
+
+<div id="plot"></div>
+
+
+<script>
+
+/* =========================================================
+   Exact transmission for all energies
+   ========================================================= */
+
+function exactTransmission(x, beta) {
+
+    /*
+      Below barrier:
+      x = E/V0 < 1
+    */
+
+    if (x < 1) {
+
+        const y =
+            beta * Math.sqrt(1 - x);
+
+        const sinh =
+            Math.sinh(y);
+
+        const factor =
+            sinh * sinh /
+            (4 * x * (1 - x));
+
+        return 1 / (1 + factor);
+    }
+
+
+    /*
+      Exactly at E = V0.
+
+      The separate formulas appear singular,
+      but the limit is finite.
+    */
+
+    if (Math.abs(x - 1) < 1e-10) {
+
+        return 1 /
+            (1 + beta * beta / 4);
+    }
+
+
+    /*
+      Above barrier:
+      x = E/V0 > 1
+    */
+
+    const y =
+        beta * Math.sqrt(x - 1);
+
+    const sin =
+        Math.sin(y);
+
+    const factor =
+        sin * sin /
+        (4 * x * (x - 1));
+
+    return 1 / (1 + factor);
+}
+
+
+/* =========================================================
+   Thick barrier approximation
+   ========================================================= */
+
+function thickBarrierTransmission(x, beta) {
+
+    if (x <= 0 || x >= 1) {
+        return null;
+    }
+
+    return (
+        16 *
+        x *
+        (1 - x) *
+        Math.exp(
+            -2 *
+            beta *
+            Math.sqrt(1 - x)
+        )
+    );
+}
+
+
+/* =========================================================
+   Generate all curves
+   ========================================================= */
+
+function calculate(beta) {
+
+    const E = [];
+    const T = [];
+    const R = [];
+
+    const Ethick = [];
+    const Tthick = [];
+
+
+    /* -----------------------------
+       Region E < V0
+       ----------------------------- */
+
+    for (
+        let x = 0.005;
+        x < 1;
+        x += 0.005
+    ) {
+
+        const transmission =
+            exactTransmission(x, beta);
+
+        E.push(x);
+        T.push(transmission);
+        R.push(1 - transmission);
+
+        Ethick.push(x);
+
+        Tthick.push(
+            thickBarrierTransmission(
+                x,
+                beta
+            )
+        );
+    }
+
+
+    /* -----------------------------
+       Exactly E = V0
+       ----------------------------- */
+
+    const T1 =
+        1 /
+        (1 + beta * beta / 4);
+
+    E.push(1);
+    T.push(T1);
+    R.push(1 - T1);
+
+
+    /* -----------------------------
+       Region E > V0
+       ----------------------------- */
+
+    for (
+        let x = 1.005;
+        x <= 6;
+        x += 0.005
+    ) {
+
+        const transmission =
+            exactTransmission(x, beta);
+
+        E.push(x);
+        T.push(transmission);
+        R.push(1 - transmission);
+    }
+
+
+    return {
+        E,
+        T,
+        R,
+        Ethick,
+        Tthick
+    };
+}
+
+
+/* =========================================================
+   Draw graph
+   ========================================================= */
+
+function draw(beta) {
+
+    const data =
+        calculate(beta);
+
+
+    /* Exact transmission */
+
+    const transmissionTrace = {
+
+        x: data.E,
+        y: data.T,
+
+        mode: "lines",
+
+        name:
+            "Exact T",
+
+        line: {
+            width: 3
+        }
+    };
+
+
+    /* Exact reflection */
+
+    const reflectionTrace = {
+
+        x: data.E,
+        y: data.R,
+
+        mode: "lines",
+
+        name:
+            "Exact R",
+
+        line: {
+            width: 3
+        }
+    };
+
+
+    /* Thick barrier approximation */
+
+    const thickTrace = {
+
+        x: data.Ethick,
+        y: data.Tthick,
+
+        mode: "lines",
+
+        name:
+            "Thick-barrier T",
+
+        line: {
+            width: 2,
+            dash: "dash"
+        }
+    };
+
+
+    /* Vertical line at E = V0 */
+
+    const barrierLine = {
+
+        x: [1, 1],
+        y: [0, 1],
+
+        mode: "lines",
+
+        name:
+            "E = V₀",
+
+        line: {
+            width: 1,
+            dash: "dot"
+        },
+
+        hoverinfo:
+            "skip"
+    };
+
+
+    const layout = {
+
+        title: {
+            text:
+              "Transmission and Reflection through a Finite Barrier"
+        },
+
+        xaxis: {
+
+            title:
+                "E / V₀",
+
+            range:
+                [0, 6],
+
+            zeroline:
+                false
+        },
+
+        yaxis: {
+
+            title:
+                "T, R",
+
+            range:
+                [0, 1.05],
+
+            zeroline:
+                false
+        },
+
+        legend: {
+
+            x:
+                0.70,
+
+            y:
+                0.98
+        },
+
+        margin: {
+
+            t:
+                70,
+
+            r:
+                30,
+
+            b:
+                70,
+
+            l:
+                70
+        },
+
+        hovermode:
+            "x unified"
+    };
+
+
+    Plotly.react(
+
+        "plot",
+
+        [
+          transmissionTrace,
+          reflectionTrace,
+          thickTrace,
+          barrierLine
+        ],
+
+        layout,
+
+        {
+          responsive: true,
+          displaylogo: false
+        }
+    );
+}
+
+
+/* =========================================================
+   Slider
+   ========================================================= */
+
+const slider =
+    document.getElementById("beta");
+
+const display =
+    document.getElementById("betaValue");
+
+
+slider.addEventListener(
+    "input",
+
+    function() {
+
+        const beta =
+            parseFloat(
+                this.value
+            );
+
+        display.textContent =
+            beta.toFixed(1);
+
+        draw(beta);
+    }
+);
+
+
+/* Initial plot */
+
+draw(5);
+
+</script>
+
+</body>
+</html>
