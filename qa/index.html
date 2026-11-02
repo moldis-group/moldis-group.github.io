@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Private research group Q&A forum with community leaderboard." />
+  <title>Research Exchange · Group Q&A</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="#home" aria-label="Research Exchange home"><span class="brand-mark">R<span>·</span></span><span>Research <strong>Exchange</strong></span></a>
+      <nav class="topnav" aria-label="Main navigation">
+        <button id="nav-questions" class="nav-link active" type="button">Questions</button>
+        <button id="nav-leaderboard" class="nav-link" type="button">Leaderboard</button>
+      </nav>
+      <div class="account-actions"><span id="user-chip" class="user-chip hidden"></span><button id="auth-button" class="btn btn-outline" type="button">Sign in</button></div>
+    </div>
+  </header>
+
+  <main class="shell page" id="home">
+    <section class="hero" aria-labelledby="hero-heading">
+      <div><div class="eyebrow"><span class="pulse"></span> PRIVATE RESEARCH COMMUNITY</div><h1 id="hero-heading">Better questions.<br /><span>Better science.</span></h1><p>Ask, explain, challenge, and learn together. Useful contributions earn recognition—not just frequent posting.</p><div class="hero-actions"><button id="ask-hero" class="btn btn-primary" type="button">+ Ask a question</button><span class="hero-note">Math, code &amp; thoughtful answers welcome</span></div></div>
+      <div class="hero-art" aria-hidden="true"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="art-card art-card-one"><span class="art-icon">∇</span><span>Why does BFGS preserve positive curvature?</span><b>+15</b></div><div class="art-card art-card-two"><span class="art-icon">✓</span><span>Accepted answer</span><b>+15 pts</b></div><div class="art-grid"></div></div>
+    </section>
+
+    <div id="setup-banner" class="notice setup-notice" role="status">Configure Firebase in <code>firebase-config.js</code> to enable shared accounts and questions. See <code>README.md</code> for setup.</div>
+    <div id="status" class="notice hidden" role="status" aria-live="polite"></div>
+
+    <div class="workspace">
+      <section class="main-column" id="questions-view" aria-label="Forum questions">
+        <div class="section-top"><div><p class="kicker">COMMUNITY BOARD</p><h2>Explore questions <span id="question-count" class="count-pill">0</span></h2><p class="section-subtitle">Exchange ideas across your research group.</p></div><button class="btn btn-primary compact" id="ask-inline" type="button">+ New question</button></div>
+        <div class="toolbar"><label class="search-box"><span aria-hidden="true">⌕</span><span class="sr-only">Search questions</span><input id="search" type="search" placeholder="Search questions, tags, or authors..." /></label><select id="filter" aria-label="Filter questions"><option value="all">All questions</option><option value="open">Open questions</option><option value="solved">Solved questions</option><option value="mine">My questions</option></select><select id="sort" aria-label="Sort questions"><option value="newest">Newest first</option><option value="votes">Most upvoted</option><option value="answers">Most answered</option></select></div>
+        <div id="questions-list" class="question-list"><div class="empty-state">Sign in to see questions from your group.</div></div>
+        <div id="question-detail" class="detail hidden"></div>
+      </section>
+
+      <section class="main-column hidden" id="leaderboard-view" aria-label="Leaderboard"><div class="section-top"><div><p class="kicker">COMMUNITY RECOGNITION</p><h2>Leaderboard</h2><p class="section-subtitle">Points reward questions, explanations, accepted answers, and peer appreciation.</p></div></div><div class="panel leaderboard-panel"><div class="panel-heading"><h3>All-time contributors</h3><span class="mini-label">Live ranking</span></div><div id="full-leaderboard" class="rank-list"><div class="empty-state">Sign in to see rankings.</div></div></div><div class="panel rubric"><h3>How points work</h3><div class="rubric-grid"><span>Ask a question</span><b>+2</b><span>Post an answer</span><b>+5</b><span>Answer accepted by asker</span><b>+15</b><span>Receive an upvote</span><b>+2</b></div><p>Scores are calculated from forum activity. Each member may upvote a given post once; you cannot vote for your own posts.</p></div></section>
+
+      <aside class="sidebar" aria-label="Community insights"><div class="panel"><div class="panel-heading"><h3>Community pulse</h3><span class="live-dot" title="Updates live"></span></div><div class="stats-grid"><div><b id="stat-questions">0</b><span>Questions</span></div><div><b id="stat-answers">0</b><span>Answers</span></div><div><b id="stat-solved">0</b><span>Solved</span></div><div><b id="stat-members">0</b><span>Contributors</span></div></div></div><div class="panel"><div class="panel-heading"><h3>Top contributors</h3><button id="view-all" class="text-link" type="button">View all →</button></div><div id="mini-leaderboard" class="mini-ranks"><p class="muted">Rankings appear after sign-in.</p></div></div><div class="panel"><div class="panel-heading"><h3>Discussion topics</h3></div><div class="topic-cloud" id="topic-cloud"><button class="topic" type="button" data-topic="Computational Chemistry">Computational Chemistry</button><button class="topic" type="button" data-topic="Machine Learning">Machine Learning</button><button class="topic" type="button" data-topic="Programming">Programming</button><button class="topic" type="button" data-topic="Research Methods">Research Methods</button><button class="topic" type="button" data-topic="Literature">Literature</button></div></div><div class="sidebar-tip"><b>Community tip</b><p>Show your reasoning, cite sources, and share reproducible examples when possible.</p></div></aside>
+    </div>
+  </main>
+
+  <footer class="footer shell">Research Exchange <span>·</span> Learn publicly within your group. Built for GitHub Pages + Firebase.</footer>
+
+  <dialog id="auth-dialog" class="modal"><form id="auth-form" class="dialog-content"><div class="dialog-title"><div><p class="kicker">YOUR COMMUNITY ACCOUNT</p><h2 id="auth-title">Sign in</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div><div id="name-field" class="field hidden"><label for="auth-name">Display name</label><input id="auth-name" type="text" maxlength="50" autocomplete="name" placeholder="e.g. A. Researcher" /></div><div class="field"><label for="auth-email">Email address</label><input id="auth-email" type="email" required autocomplete="email" placeholder="you@institute.edu" /></div><div class="field"><label for="auth-password">Password</label><input id="auth-password" type="password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters" /></div><button id="auth-submit" class="btn btn-primary full" type="submit">Sign in</button><button id="auth-toggle" class="text-link centered" type="button">New here? Create an account</button><p class="dialog-hint">Use an email address permitted by your group administrator.</p></form></dialog>
+
+  <dialog id="ask-dialog" class="modal wide-modal"><form id="ask-form" class="dialog-content"><div class="dialog-title"><div><p class="kicker">START A DISCUSSION</p><h2>Ask a question</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div><div class="field"><label for="question-title">Title</label><input id="question-title" required maxlength="180" minlength="10" placeholder="State the specific problem or question" /></div><div class="field"><label for="question-body">Details</label><textarea id="question-body" required minlength="15" maxlength="10000" rows="7" placeholder="Explain what you tried, context, observations, and what you'd like to understand. Markdown-style plain text is supported; LaTeX: $...$ and $$...$$."></textarea></div><div class="field"><label for="question-tag">Topic</label><select id="question-tag"><option>Computational Chemistry</option><option>Machine Learning</option><option>Programming</option><option>Research Methods</option><option>Literature</option><option>Other</option></select></div><div class="dialog-bottom"><span class="dialog-hint">+2 points for asking a question</span><button id="question-submit" class="btn btn-primary" type="submit">Publish question</button></div></form></dialog>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

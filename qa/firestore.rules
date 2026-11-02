@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function str(s, minLen, maxLen) {
+      return s is string && s.size() >= minLen && s.size() <= maxLen;
+    }
+    match /questions/{qid} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['title','body','tag','authorId','authorName','acceptedAnswerId','createdAt'])
+        && request.resource.data.authorId == request.auth.uid
+        && str(request.resource.data.title,10,180)
+        && str(request.resource.data.body,15,10000)
+        && str(request.resource.data.authorName,1,100)
+        && request.resource.data.tag in ['Computational Chemistry','Machine Learning','Programming','Research Methods','Literature','Other']
+        && request.resource.data.acceptedAnswerId == null
+        && request.resource.data.createdAt == request.time;
+      allow update: if signedIn() && resource.data.authorId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptedAnswerId'])
+        && request.resource.data.acceptedAnswerId is string
+        && exists(/databases/$(database)/documents/answers/$(request.resource.data.acceptedAnswerId))
+        && get(/databases/$(database)/documents/answers/$(request.resource.data.acceptedAnswerId)).data.questionId == qid;
+      allow delete: if false;
+    }
+    match /answers/{aid} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['questionId','body','authorId','authorName','createdAt'])
+        && request.resource.data.authorId == request.auth.uid
+        && str(request.resource.data.questionId,1,128)
+        && exists(/databases/$(database)/documents/questions/$(request.resource.data.questionId))
+        && str(request.resource.data.body,10,10000)
+        && str(request.resource.data.authorName,1,100)
+        && request.resource.data.createdAt == request.time;
+      allow update,delete: if false;
+    }
+    match /votes/{vid} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['userId','targetType','targetId','createdAt'])
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.targetType in ['question','answer']
+        && str(request.resource.data.targetId,1,128)
+        && vid == request.auth.uid + '_' + request.resource.data.targetType + '_' + request.resource.data.targetId
+        && request.resource.data.createdAt == request.time
+        && (
+          (request.resource.data.targetType == 'question'
+            && exists(/databases/$(database)/documents/questions/$(request.resource.data.targetId))
+            && get(/databases/$(database)/documents/questions/$(request.resource.data.targetId)).data.authorId != request.auth.uid)
+          || (request.resource.data.targetType == 'answer'
+            && exists(/databases/$(database)/documents/answers/$(request.resource.data.targetId))
+            && get(/databases/$(database)/documents/answers/$(request.resource.data.targetId)).data.authorId != request.auth.uid)
+        );
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+      allow update: if false;
+    }
+  }
+}
