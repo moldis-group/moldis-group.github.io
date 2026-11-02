@@ -1,4 +1,4 @@
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyC5e3KqNEhch1eSGh2FmNQiB-wlmXMwR1s",
   authDomain: "moldis-qa.firebaseapp.com",
   projectId: "moldis-qa",
