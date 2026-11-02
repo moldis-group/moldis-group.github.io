@@ -16,14 +16,14 @@
         <button id="nav-questions" class="nav-link active" type="button">Questions</button>
         <button id="nav-leaderboard" class="nav-link" type="button">Leaderboard</button>
       </nav>
-      <div class="account-actions"><span id="user-chip" class="user-chip hidden"></span><button id="auth-button" class="btn btn-outline" type="button">Sign in</button></div>
+      <div class="account-actions"><span id="user-chip" class="user-chip hidden"></span><button id="change-password-button" class="btn btn-outline hidden" type="button">Change password</button><button id="auth-button" class="btn btn-outline" type="button">Sign in</button></div>
     </div>
   </header>
 
   <main class="shell page" id="home">
     <section class="hero" aria-labelledby="hero-heading">
       <div><div class="eyebrow"><span class="pulse"></span> PRIVATE RESEARCH COMMUNITY</div><h1 id="hero-heading">Better questions.<br /><span>Better science.</span></h1><p>Ask, explain, challenge, and learn together. Useful contributions earn recognition—not just frequent posting.</p><div class="hero-actions"><button id="ask-hero" class="btn btn-primary" type="button">+ Ask a question</button><span class="hero-note">Math, code &amp; thoughtful answers welcome</span></div></div>
-      <div class="hero-art" aria-hidden="true"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="art-card art-card-one"><span class="art-icon">∇</span><span>Can anyone explain how ORCA uses the BFGS algorithm (inverse Hessian equation) for geometry optimization ? </span><b>+15</b></div><div class="art-card art-card-two"><span class="art-icon">✓</span><span>Accepted answer</span><b>+15 pts</b></div><div class="art-grid"></div></div>
+      <div class="hero-art" aria-hidden="true"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="art-card art-card-one"><span class="art-icon">∇</span><span>Why does BFGS preserve positive curvature?</span><b>+15</b></div><div class="art-card art-card-two"><span class="art-icon">✓</span><span>Accepted answer</span><b>+15 pts</b></div><div class="art-grid"></div></div>
     </section>
 
     <div id="setup-banner" class="notice setup-notice" role="status">Configure Firebase in <code>firebase-config.js</code> to enable shared accounts and questions. See <code>README.md</code> for setup.</div>
@@ -45,9 +45,29 @@
 
   <footer class="footer shell">Research Exchange <span>·</span> Learn publicly within your group. Built for GitHub Pages + Firebase.</footer>
 
-  <dialog id="auth-dialog" class="modal"><form id="auth-form" class="dialog-content"><div class="dialog-title"><div><p class="kicker">YOUR COMMUNITY ACCOUNT</p><h2 id="auth-title">Sign in</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div><div id="name-field" class="field hidden"><label for="auth-name">Display name</label><input id="auth-name" type="text" maxlength="50" autocomplete="name" placeholder="e.g. A. Researcher" /></div><div class="field"><label for="auth-email">Email address</label><input id="auth-email" type="email" required autocomplete="email" placeholder="you@institute.edu" /></div><div class="field"><label for="auth-password">Password</label><input id="auth-password" type="password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters" /></div><button id="auth-submit" class="btn btn-primary full" type="submit">Sign in</button><button id="auth-toggle" class="text-link centered" type="button">New here? Create an account</button><p class="dialog-hint">Use an email address permitted by your group administrator.</p></form></dialog>
+  <dialog id="auth-dialog" class="modal"><form id="auth-form" class="dialog-content"><div class="dialog-title"><div><p class="kicker">YOUR COMMUNITY ACCOUNT</p><h2 id="auth-title">Sign in</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div><div id="name-field" class="field hidden"><label for="auth-name">Display name</label><input id="auth-name" type="text" maxlength="50" autocomplete="name" placeholder="e.g. A. Researcher" /></div><div class="field"><label for="auth-email">Email address</label><input id="auth-email" type="email" required autocomplete="email" placeholder="you@institute.edu" /></div><div class="field"><label for="auth-password">Password</label><input id="auth-password" type="password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters" /></div><button id="auth-submit" class="btn btn-primary full" type="submit">Sign in</button><button id="forgot-password-button" class="text-action" type="button">Forgot password?</button><p class="dialog-hint">Accounts are created by the group administrator. Contact them if you need access.</p></form></dialog>
 
   <dialog id="ask-dialog" class="modal wide-modal"><form id="ask-form" class="dialog-content"><div class="dialog-title"><div><p class="kicker">START A DISCUSSION</p><h2>Ask a question</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div><div class="field"><label for="question-title">Title</label><input id="question-title" required maxlength="180" minlength="10" placeholder="State the specific problem or question" /></div><div class="field"><label for="question-body">Details</label><textarea id="question-body" required minlength="15" maxlength="10000" rows="7" placeholder="Explain what you tried, context, observations, and what you'd like to understand. Markdown-style plain text is supported; LaTeX: $...$ and $$...$$."></textarea></div><div class="field"><label for="question-tag">Topic</label><select id="question-tag"><option>Computational Chemistry</option><option>Machine Learning</option><option>Programming</option><option>Research Methods</option><option>Literature</option><option>Other</option></select></div><div class="dialog-bottom"><span class="dialog-hint">+2 points for asking a question</span><button id="question-submit" class="btn btn-primary" type="submit">Publish question</button></div></form></dialog>
   <script type="module" src="app.js"></script>
+
+  <dialog id="reset-password-dialog" class="modal">
+    <form id="reset-password-form" class="dialog-content">
+      <div class="dialog-title"><div><p class="kicker">ACCOUNT RECOVERY</p><h2>Reset password</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div>
+      <p class="dialog-hint">Enter the email address for your MOLDIS-QA account. If the account exists and is eligible, Firebase will send a password-reset link.</p>
+      <div class="field"><label for="reset-email">Email address</label><input id="reset-email" type="email" required autocomplete="email" /></div>
+      <p id="reset-message" class="form-message" role="status" aria-live="polite"></p>
+      <button id="reset-submit" class="btn btn-primary full" type="submit">Send reset email</button>
+    </form>
+  </dialog>
+  <dialog id="change-password-dialog" class="modal">
+    <form id="change-password-form" class="dialog-content">
+      <div class="dialog-title"><div><p class="kicker">ACCOUNT SETTINGS</p><h2>Change password</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div>
+      <div class="field"><label for="current-password">Current password</label><input id="current-password" type="password" required autocomplete="current-password" /></div>
+      <div class="field"><label for="new-password">New password</label><input id="new-password" type="password" required minlength="6" autocomplete="new-password" /></div>
+      <div class="field"><label for="confirm-password">Confirm new password</label><input id="confirm-password" type="password" required minlength="6" autocomplete="new-password" /></div>
+      <p id="change-message" class="form-message" role="status" aria-live="polite"></p>
+      <button id="change-submit" class="btn btn-primary full" type="submit">Update password</button>
+    </form>
+  </dialog>
 </body>
 </html>
