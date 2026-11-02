@@ -1,10 +1,9 @@
-// Paste the web app configuration from Firebase Console > Project settings.
-// Firebase web configuration is PUBLIC by design; Firestore security rules protect the data.
-export const firebaseConfig = {
-  apiKey: 'PASTE_YOUR_API_KEY',
-  authDomain: 'PASTE_YOUR_PROJECT_ID.firebaseapp.com',
-  projectId: 'PASTE_YOUR_PROJECT_ID',
-  storageBucket: 'PASTE_YOUR_PROJECT_ID.firebasestorage.app',
-  messagingSenderId: 'PASTE_YOUR_SENDER_ID',
-  appId: 'PASTE_YOUR_APP_ID'
+const firebaseConfig = {
+  apiKey: "AIzaSyC5e3KqNEhch1eSGh2FmNQiB-wlmXMwR1s",
+  authDomain: "moldis-qa.firebaseapp.com",
+  projectId: "moldis-qa",
+  storageBucket: "moldis-qa.firebasestorage.app",
+  messagingSenderId: "43554006619",
+  appId: "1:43554006619:web:47e4ceb1d5def8c2ae817e",
+  measurementId: "G-BLD1RHEJV4"
 };
