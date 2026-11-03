@@ -76,7 +76,7 @@ function render(){renderRanks();if(view==='questions'){if(selected)renderDetail(
 function attachData(){unsubscribe.forEach(fn=>fn());unsubscribe=[];for(const [name,put] of [['questions',v=>questions=v],['answers',v=>answers=v],['votes',v=>votes=v],['wiki',v=>wikiArticles=v]]){unsubscribe.push(onSnapshot(collection(db,name),snapshot=>{put(snapshot.docs.map(d=>({id:d.id,...d.data()})));render();},err=>{if(name==='wiki')notify('Wiki access blocked. Publish the supplied Wiki Firestore rules before using this tab.',true);else issue(err);console.error(name,err);}));}}
 
 // -------- Research Wiki: collaborative editing by approved group members --------
-const wikiTagOptions = ['Computational Chemistry','Machine Learning','Programming','Research Methods','Literature','Other'];
+const wikiTagOptions = ['Computational Chemistry','Machine Learning','Programming','Research Methods','Linux','Python','Literature','Other'];
 const wikiPermitted = a => isMember && !!a;
 function renderWiki(){
   $('wiki-count').textContent=wikiArticles.filter(a=>a.status==='published').length;
