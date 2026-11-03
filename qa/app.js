@@ -31,9 +31,47 @@ function switchView(next){
 function rankData(){const map=new Map();const add=(id,name,n)=>{if(!id)return;let entry=map.get(id)||{uid:id,name:name||'Member',points:0};if(name)entry.name=name;entry.points+=n;map.set(id,entry);};for(const q of questions)add(q.authorId,q.authorName,2);for(const a of answers)add(a.authorId,a.authorName,5);for(const q of questions){const accepted=answers.find(a=>a.id===q.acceptedAnswerId && a.questionId===q.id);if(accepted)add(accepted.authorId,accepted.authorName,15);}for(const v of votes){const target=v.targetType==='question'?questions.find(q=>q.id===v.targetId):answers.find(a=>a.id===v.targetId);if(target)add(target.authorId,target.authorName,2);}return [...map.values()].sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name));}
 function renderRanks(){const ranks=rankData();$('stat-questions').textContent=questions.length;$('stat-answers').textContent=answers.length;$('stat-solved').textContent=questions.filter(q=>answers.some(a=>a.id===q.acceptedAnswerId&&a.questionId===q.id)).length;$('stat-members').textContent=ranks.length;$('stat-wiki').textContent=wikiArticles.filter(a=>a.status==='published').length;const row=(p,i)=>`<div class="rank-row"><span class="rank-num">${i+1}</span><span class="rank-avatar">${escapeHTML(p.name.trim().charAt(0).toUpperCase()||'?')}</span><span class="rank-name">${escapeHTML(p.name)}${p.uid===user?.uid?' (you)':''}</span><span class="rank-points">${p.points} pts</span></div>`;$('mini-leaderboard').innerHTML=ranks.length?ranks.slice(0,4).map(row).join(''):'<p class="muted">No contributors yet.</p>';$('full-leaderboard').innerHTML=ranks.length?ranks.map(row).join(''):'<div class="empty-state">No activity yet. Ask the first question!</div>';}
 function renderQuestions(){const query=$('search').value.trim().toLowerCase(),filter=$('filter').value,sort=$('sort').value;let data=questions.filter(q=>([q.title,q.body,q.tag,q.authorName].some(s=>String(s||'').toLowerCase().includes(query)))&&(filter==='all'||filter==='mine'&&q.authorId===user?.uid||filter==='open'&&!answers.some(a=>a.id===q.acceptedAnswerId&&a.questionId===q.id)||filter==='solved'&&answers.some(a=>a.id===q.acceptedAnswerId&&a.questionId===q.id)));data.sort((a,b)=>sort==='votes'?tally('question',b.id)-tally('question',a.id):sort==='answers'?answerCount(b.id)-answerCount(a.id):(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));$('question-count').textContent=questions.length;$('questions-list').innerHTML=data.length?data.map(q=>{const solved=answers.some(a=>a.id===q.acceptedAnswerId&&a.questionId===q.id);return `<article class="question-card"><div class="question-score"><b>${tally('question',q.id)}</b><span>votes</span><b>${answerCount(q.id)}</b><span>answers</span></div><div class="question-info"><button class="question-title" type="button" data-open="${q.id}">${escapeHTML(q.title)}</button><p class="question-excerpt">${escapeHTML(short(q.body,180))}</p><div class="question-meta"><span class="tag">${escapeHTML(q.tag)}</span>${solved?'<span class="solved">✓ Solved</span>':''}<span>by ${escapeHTML(displayName(q))}</span><span>·</span><span>${time(q.createdAt)}</span></div></div></article>`}).join(''):'<div class="empty-state">No questions match your filters. Try another search or ask a new question.</div>';$('question-count').textContent=questions.length;}
-// User-provided text is rendered as escaped plain text; code fences are formatted safely.
-function formatBody(text){const chunks=escapeHTML(text).split(/```/);return chunks.map((s,i)=>i%2?`<pre><code>${s}</code></pre>`:s.replace(/`([^`\n]+)`/g,'<code>$1</code>')).join('');}
-function renderDetail(){const q=questions.find(item=>item.id===selected);if(!q){selected=null;return render();}const qAnswers=answers.filter(a=>a.questionId===q.id).sort((a,b)=>(a.id===q.acceptedAnswerId?-1:0)-(b.id===q.acceptedAnswerId?-1:0)||(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));$('questions-list').classList.add('hidden');$('question-detail').classList.remove('hidden');$('question-detail').innerHTML=`<button class="detail-back" type="button" data-back>← All questions</button><div class="detail-heading"><h2>${escapeHTML(q.title)}</h2></div><div class="question-meta detail-meta"><span class="tag">${escapeHTML(q.tag)}</span><span>Asked by ${escapeHTML(displayName(q))}</span><span>·</span><span>${time(q.createdAt)}</span></div><div class="post-body">${formatBody(q.body)}</div><div class="detail-actions"><button class="vote-btn ${mineVote('question',q.id)?'voted':''}" data-vote-type="question" data-vote-id="${q.id}" ${q.authorId===user?.uid?'disabled title="Cannot upvote your own post"':''}>▲ ${tally('question',q.id)} Upvotes</button><button class="btn btn-outline compact" type="button" data-wiki-from="${q.id}">Summarize into Wiki</button></div><hr class="detail-divider"/><h3 class="answers-title">${qAnswers.length} ${qAnswers.length===1?'Answer':'Answers'}</h3>${qAnswers.map(a=>`<div class="answer-card"><div class="answer-meta"><span>Answered by <b>${escapeHTML(displayName(a))}</b> · ${time(a.createdAt)}</span>${q.acceptedAnswerId===a.id?'<span class="answer-accepted">✓ Accepted solution</span>':''}</div><div class="post-body">${formatBody(a.body)}</div><div class="answer-buttons"><button class="vote-btn ${mineVote('answer',a.id)?'voted':''}" data-vote-type="answer" data-vote-id="${a.id}" ${a.authorId===user?.uid?'disabled title="Cannot upvote your own post"':''}>▲ ${tally('answer',a.id)} Upvotes</button>${user?.uid===q.authorId&&q.acceptedAnswerId!==a.id?`<button class="accept-btn" data-accept="${a.id}">✓ Accept answer</button>`:''}</div></div>`).join('')}<form id="answer-form" class="answer-form"><h3 class="answers-title">Your answer</h3><textarea id="answer-body" required minlength="10" maxlength="10000" placeholder="Share a well-reasoned answer, sources, or a reproducible example..."></textarea><button class="btn btn-primary" type="submit" ${!user?'disabled':''}>Post answer · +5 pts</button>${!user?'<p class="muted">Sign in to post an answer.</p>':''}</form>`;}
+// Render untrusted Markdown safely. Sanitization is mandatory before using innerHTML.
+// If either library fails to load, show escaped plain text rather than unsafe HTML.
+function formatBody(text) {
+  const source = String(text ?? '');
+  if (!window.marked?.parse || !window.DOMPurify?.sanitize) {
+    return `<div class="markdown-fallback">${escapeHTML(source)}</div>`;
+  }
+  const raw = window.marked.parse(source, { gfm: true, breaks: true });
+  return window.DOMPurify.sanitize(raw, {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['style', 'script', 'iframe', 'form', 'object', 'embed'],
+    FORBID_ATTR: ['style']
+  });
+}
+function typesetMarkdown(root) {
+  if (!root || typeof window.renderMathInElement !== 'function') return;
+  try {
+    window.renderMathInElement(root, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '\\[', right: '\\]', display: true },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '$', right: '$', display: false }
+      ],
+      ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+      throwOnError: false,
+      trust: false
+    });
+  } catch (err) { console.warn('Math rendering failed:', err); }
+}
+function typesetAll(root) {
+  root.querySelectorAll('.markdown-render, .post-body').forEach(typesetMarkdown);
+}
+function refreshWikiPreview() {
+  const preview = $('wiki-markdown-preview');
+  if (!preview) return;
+  const content = $('wiki-content').value;
+  preview.innerHTML = content.trim() ? formatBody(content) : '<p class="muted">Start writing to preview your article.</p>';
+  typesetMarkdown(preview);
+}
+function renderDetail(){const q=questions.find(item=>item.id===selected);if(!q){selected=null;return render();}const qAnswers=answers.filter(a=>a.questionId===q.id).sort((a,b)=>(a.id===q.acceptedAnswerId?-1:0)-(b.id===q.acceptedAnswerId?-1:0)||(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));$('questions-list').classList.add('hidden');$('question-detail').classList.remove('hidden');$('question-detail').innerHTML=`<button class="detail-back" type="button" data-back>← All questions</button><div class="detail-heading"><h2>${escapeHTML(q.title)}</h2></div><div class="question-meta detail-meta"><span class="tag">${escapeHTML(q.tag)}</span><span>Asked by ${escapeHTML(displayName(q))}</span><span>·</span><span>${time(q.createdAt)}</span></div><div class="post-body markdown-render">${formatBody(q.body)}</div><div class="detail-actions"><button class="vote-btn ${mineVote('question',q.id)?'voted':''}" data-vote-type="question" data-vote-id="${q.id}" ${q.authorId===user?.uid?'disabled title="Cannot upvote your own post"':''}>▲ ${tally('question',q.id)} Upvotes</button><button class="btn btn-outline compact" type="button" data-wiki-from="${q.id}">Summarize into Wiki</button></div><hr class="detail-divider"/><h3 class="answers-title">${qAnswers.length} ${qAnswers.length===1?'Answer':'Answers'}</h3>${qAnswers.map(a=>`<div class="answer-card"><div class="answer-meta"><span>Answered by <b>${escapeHTML(displayName(a))}</b> · ${time(a.createdAt)}</span>${q.acceptedAnswerId===a.id?'<span class="answer-accepted">✓ Accepted solution</span>':''}</div><div class="post-body markdown-render">${formatBody(a.body)}</div><div class="answer-buttons"><button class="vote-btn ${mineVote('answer',a.id)?'voted':''}" data-vote-type="answer" data-vote-id="${a.id}" ${a.authorId===user?.uid?'disabled title="Cannot upvote your own post"':''}>▲ ${tally('answer',a.id)} Upvotes</button>${user?.uid===q.authorId&&q.acceptedAnswerId!==a.id?`<button class="accept-btn" data-accept="${a.id}">✓ Accept answer</button>`:''}</div></div>`).join('')}<form id="answer-form" class="answer-form"><h3 class="answers-title">Your answer</h3><textarea id="answer-body" required minlength="10" maxlength="10000" placeholder="Share a well-reasoned answer, sources, or a reproducible example..."></textarea><button class="btn btn-primary" type="submit" ${!user?'disabled':''}>Post answer · +5 pts</button>${!user?'<p class="muted">Sign in to post an answer.</p>':''}</form>`;typesetAll($('question-detail'));}
 function render(){renderRanks();if(view==='questions'){if(selected)renderDetail();else{$('questions-list').classList.remove('hidden');$('question-detail').classList.add('hidden');renderQuestions();}}if(view==='wiki')renderWiki();}
 function attachData(){unsubscribe.forEach(fn=>fn());unsubscribe=[];for(const [name,put] of [['questions',v=>questions=v],['answers',v=>answers=v],['votes',v=>votes=v],['wiki',v=>wikiArticles=v]]){unsubscribe.push(onSnapshot(collection(db,name),snapshot=>{put(snapshot.docs.map(d=>({id:d.id,...d.data()})));render();},err=>{if(name==='wiki')notify('Wiki access blocked. Publish the supplied Wiki Firestore rules before using this tab.',true);else issue(err);console.error(name,err);}));}}
 
@@ -70,12 +108,13 @@ function renderWikiDetail(){
     <h2 class="wiki-article-title">${escapeHTML(a.title)}</h2>
     <p class="wiki-byline">Created by ${escapeHTML(a.authorName||'Group member')} · Last updated ${time(a.updatedAt||a.createdAt)}</p>
     <p class="wiki-article-summary">${escapeHTML(a.summary)}</p>
-    <div class="post-body wiki-prose">${formatBody(a.content)}</div>
-    ${a.references?.trim()?`<section class="wiki-related"><h3>References</h3><div class="post-body">${formatBody(a.references)}</div></section>`:''}
+    <div class="post-body wiki-prose markdown-render">${formatBody(a.content)}</div>
+    ${a.references?.trim()?`<section class="wiki-related"><h3>References</h3><div class="post-body markdown-render">${formatBody(a.references)}</div></section>`:''}
     ${links?`<section class="wiki-related"><h3>Related Q&A discussions</h3><ul>${links}</ul></section>`:''}
     <div class="wiki-article-actions">${wikiPermitted(a)?`<button class="btn btn-outline compact" type="button" data-wiki-edit="${a.id}">Edit article</button>`:''}
     ${isEditor&&a.status==='draft'?`<button class="btn btn-primary compact" type="button" data-wiki-publish="${a.id}">Approve & publish</button>`:''}
     ${isEditor&&a.status==='published'?`<button class="btn btn-outline compact" type="button" data-wiki-unpublish="${a.id}">Return to draft</button>`:''}</div>`;
+  typesetAll($('wiki-detail'));
 }
 function openWikiEditor(id=null,fromQuestion=null){
   if(!requireAuth())return;
@@ -89,11 +128,13 @@ function openWikiEditor(id=null,fromQuestion=null){
   $('wiki-summary').value=a?.summary||'';
   $('wiki-content').value=a?.content||'';
   $('wiki-references').value=a?.references||'';
+  refreshWikiPreview();
   const linked=new Set(a?.questionIds||[]);if(fromQuestion)linked.add(fromQuestion);
   $('wiki-question-options').innerHTML=questions.length?questions.map(q=>`<label class="wiki-question-option"><input type="checkbox" value="${q.id}" ${linked.has(q.id)?'checked':''}/><span>${escapeHTML(q.title)}</span></label>`).join(''):'No questions yet.';
   $('wiki-dialog').showModal();
 }
 $('wiki-new').addEventListener('click',()=>openWikiEditor());
+$('wiki-content').addEventListener('input',refreshWikiPreview);
 $('wiki-search').addEventListener('input',()=>{wikiSelected=null;renderWiki();});
 $('wiki-filter').addEventListener('change',()=>{wikiSelected=null;renderWiki();});
 $('wiki-list').addEventListener('click',e=>{const target=e.target.closest('[data-wiki-open]');if(target){wikiSelected=target.dataset.wikiOpen;renderWiki();}});

@@ -32,3 +32,28 @@
 .wiki-link-field{border:1px solid #d9e2ee;border-radius:10px;padding:12px;margin:8px 0 20px}.wiki-link-field legend{font-size:12px;font-weight:800;padding:0 6px}
 .wiki-question-options{max-height:160px;overflow:auto;display:flex;flex-direction:column;gap:7px}.wiki-question-option{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:#415572;cursor:pointer}.wiki-question-option input{margin-top:3px}
 @media(max-width:700px){.wiki-card{padding:15px 12px;gap:10px}.wiki-article-title{font-size:22px}.wiki-card-icon{width:32px;height:32px}.topnav{gap:20px}}
+
+/* Markdown / math rendering */
+.post-body.markdown-render,.markdown-render,.markdown-preview{white-space:normal;line-height:1.75;overflow-wrap:anywhere}
+.markdown-render p,.markdown-preview p{margin:.7em 0}
+.markdown-render h1,.markdown-render h2,.markdown-render h3,.markdown-render h4,.markdown-preview h1,.markdown-preview h2,.markdown-preview h3{font-family:Manrope,sans-serif;line-height:1.35;letter-spacing:-.02em;margin:1.25em 0 .45em;color:#19304e}
+.markdown-render h1,.markdown-preview h1{font-size:1.8em}
+.markdown-render h2,.markdown-preview h2{font-size:1.5em;border-bottom:1px solid var(--line);padding-bottom:.25em}
+.markdown-render h3,.markdown-preview h3{font-size:1.2em}
+.markdown-render ul,.markdown-render ol,.markdown-preview ul,.markdown-preview ol{padding-left:1.65em;margin:.7em 0}
+.markdown-render li,.markdown-preview li{margin:.25em 0}
+.markdown-render blockquote,.markdown-preview blockquote{margin:1em 0;padding:.35em 1em;border-left:4px solid #89aaf5;background:#f5f8ff;color:#415975}
+.markdown-render table,.markdown-preview table{border-collapse:collapse;width:100%;display:block;overflow:auto;margin:1em 0}
+.markdown-render th,.markdown-render td,.markdown-preview th,.markdown-preview td{border:1px solid #dce4ef;padding:8px 12px;text-align:left;white-space:normal}
+.markdown-render th,.markdown-preview th{background:#f0f4fb}
+.markdown-render a,.markdown-preview a{color:#315fea;text-decoration:underline;text-underline-offset:2px}
+.markdown-render img,.markdown-preview img{max-width:100%;height:auto}
+.markdown-render pre,.markdown-preview pre{background:#132238;color:#f1f5fb;padding:14px;border-radius:8px;overflow-x:auto;white-space:pre;font-size:12px}
+.markdown-render pre code,.markdown-preview pre code{background:transparent;color:inherit;padding:0}
+.markdown-render :not(pre)>code,.markdown-preview :not(pre)>code{padding:2px 5px;background:#edf1f8;border-radius:4px}
+.markdown-hint{font-size:12px;color:#60738d;margin:0 0 9px}
+.markdown-preview-heading{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:14px 0 7px;font-size:12px}
+.markdown-preview-heading span{color:#8190a2;font-size:11px}
+.markdown-preview{border:1px solid #d9e2ee;border-radius:10px;padding:14px 17px;min-height:120px;max-height:340px;overflow-y:auto;background:#fbfcff;font-size:13px}
+.markdown-fallback{white-space:pre-wrap}
+.katex-display{overflow:auto;overflow-y:hidden;padding:5px 0}
