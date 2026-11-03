@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0f172a" />
   <meta name="description" content="Private research group Q&A forum with community leaderboard." />
   <title>Research Exchange · Q&A &amp; Wiki</title>
-  <link rel="stylesheet" href="style.css?v=markdown-20261103-1" />
+  <link rel="stylesheet" href="style.css?v=openwiki2" />
 </head>
 <body>
   <header class="topbar">
@@ -40,12 +40,12 @@
 
       <section class="main-column hidden" id="wiki-view" aria-label="Research Wiki">
         <div class="section-top">
-          <div><p class="kicker">COLLECTIVE KNOWLEDGE</p><h2>Research Wiki <span id="wiki-count" class="count-pill">0</span></h2><p class="section-subtitle">Summarize group discussions into reviewed, reusable explanations.</p></div>
+          <div><p class="kicker">COLLECTIVE KNOWLEDGE</p><h2>Research Wiki <span id="wiki-count" class="count-pill">0</span></h2><p class="section-subtitle">Summarize discussions into reusable explanations that every approved member can improve.</p></div>
           <button id="wiki-new" class="btn btn-primary compact" type="button">+ New article</button>
         </div>
         <div id="wiki-browser">
-          <div class="wiki-intro">An article begins as a <strong>draft</strong>. Group members can contribute summaries; a designated editor reviews and publishes them. Published pages remain linked to their original discussions.</div>
-          <div class="toolbar"><label class="search-box"><span aria-hidden="true">⌕</span><span class="sr-only">Search Wiki</span><input id="wiki-search" type="search" placeholder="Search titles, topics, content, references..." /></label><select id="wiki-filter" aria-label="Filter Wiki"><option value="published">Published</option><option value="all">All articles</option><option value="draft">Drafts</option><option value="mine">My articles</option></select></div>
+          <div class="wiki-intro"><strong>Collaborative Wiki:</strong> Any approved group member can publish immediately and edit any article. Check sources and improve one another’s explanations. Older drafts can be published with one click.</div>
+          <div class="toolbar"><label class="search-box"><span aria-hidden="true">⌕</span><span class="sr-only">Search Wiki</span><input id="wiki-search" type="search" placeholder="Search titles, topics, content, references..." /></label><select id="wiki-filter" aria-label="Filter Wiki"><option value="published">Published</option><option value="all">All articles</option><option value="draft">Older unpublished drafts</option><option value="mine">My articles</option></select></div>
           <div id="wiki-list" class="wiki-list"><div class="empty-state">Sign in to see the group Wiki.</div></div>
         </div>
         <article id="wiki-detail" class="detail wiki-detail hidden"></article>
@@ -65,16 +65,16 @@
   <dialog id="wiki-dialog" class="modal wide-modal">
     <form id="wiki-form" class="dialog-content">
       <div class="dialog-title"><div><p class="kicker">RESEARCH KNOWLEDGE BASE</p><h2 id="wiki-form-heading">Create Wiki article</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div>
-      <p class="dialog-hint">Summarize established conclusions, limitations, relevant references, and unresolved questions. A draft requires editorial approval before publication.</p>
+      <p class="dialog-hint">Summarize established conclusions, limitations, relevant references, and unresolved questions. Your article is published immediately. Every approved group member can edit and improve it.</p>
       <div class="field"><label for="wiki-title">Article title</label><input id="wiki-title" required minlength="8" maxlength="180" placeholder="e.g. Geometry optimization with BFGS" /></div>
       <div class="field"><label for="wiki-tag">Topic</label><select id="wiki-tag"><option>Computational Chemistry</option><option>Machine Learning</option><option>Programming</option><option>Research Methods</option><option>Literature</option><option>Other</option></select></div>
       <div class="field"><label for="wiki-summary">Short summary</label><textarea id="wiki-summary" required minlength="20" maxlength="700" rows="3" placeholder="A compact overview of the main conclusions"></textarea></div>
       <div class="field"><label for="wiki-content">Article content</label><div class="markdown-hint">Supports <b>Markdown</b>: headings, **bold**, *italic*, lists, tables, links, blockquotes and fenced code. Math: <code>$...$</code> or <code>$$...$$</code>.</div><textarea id="wiki-content" required minlength="40" maxlength="30000" rows="12" placeholder="# Introduction&#10;&#10;## Key ideas&#10;&#10;**Bold text**, *italic text*, lists, tables, links and LaTeX: $E=mc^2$"></textarea>
-        <div class="markdown-preview-heading"><strong>Live preview</strong><span>Not saved until you click Save draft</span></div><div id="wiki-markdown-preview" class="markdown-render markdown-preview" aria-live="polite">Start writing to preview your article.</div></div>
+        <div class="markdown-preview-heading"><strong>Live preview</strong><span>Not saved until you click Publish article or Save changes</span></div><div id="wiki-markdown-preview" class="markdown-render markdown-preview" aria-live="polite">Start writing to preview your article.</div></div>
       <div class="field"><label for="wiki-references">References (optional)</label><textarea id="wiki-references" maxlength="4000" rows="3" placeholder="DOIs, URLs, papers, textbooks; one reference per line"></textarea></div>
       <fieldset class="wiki-link-field"><legend>Link to existing discussions (optional)</legend><div id="wiki-question-options" class="wiki-question-options">Sign in to select discussions.</div></fieldset>
       <p class="form-message" id="wiki-form-message" role="status"></p>
-      <div class="dialog-bottom"><span class="dialog-hint">Saved as a draft; an editor can publish it.</span><button class="btn btn-primary" id="wiki-save" type="submit">Save draft</button></div>
+      <div class="dialog-bottom"><span class="dialog-hint">Published immediately. All approved members can edit.</span><button class="btn btn-primary" id="wiki-save" type="submit">Publish article</button></div>
     </form>
   </dialog>
   <!-- Markdown rendering and HTML sanitization (client-side, no Firebase changes). -->
@@ -84,7 +84,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
-  <script type="module" src="app.js?v=markdown-20261103-1"></script>
+  <script type="module" src="app.js?v=openwiki2"></script>
 
   <dialog id="reset-password-dialog" class="modal">
     <form id="reset-password-form" class="dialog-content">

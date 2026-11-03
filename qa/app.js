@@ -7,7 +7,7 @@ const $ = (id) => document.getElementById(id);
 const configured = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('PASTE_');
 let auth, db, user = null, isMember = false, authEpoch = 0, questions = [], answers = [], votes = [], view = 'questions', selected = null, mode = 'signin';
 let unsubscribe = [];
-let wikiArticles = [], wikiSelected = null, wikiEditingId = null, isEditor = false;
+let wikiArticles = [], wikiSelected = null, wikiEditingId = null;
 const escapeHTML = (text = '') => String(text).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const time = (stamp) => stamp?.toDate?.()?.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}) || 'Just now';
 const displayName = (record) => record.authorName || 'Group member';
@@ -75,9 +75,9 @@ function renderDetail(){const q=questions.find(item=>item.id===selected);if(!q){
 function render(){renderRanks();if(view==='questions'){if(selected)renderDetail();else{$('questions-list').classList.remove('hidden');$('question-detail').classList.add('hidden');renderQuestions();}}if(view==='wiki')renderWiki();}
 function attachData(){unsubscribe.forEach(fn=>fn());unsubscribe=[];for(const [name,put] of [['questions',v=>questions=v],['answers',v=>answers=v],['votes',v=>votes=v],['wiki',v=>wikiArticles=v]]){unsubscribe.push(onSnapshot(collection(db,name),snapshot=>{put(snapshot.docs.map(d=>({id:d.id,...d.data()})));render();},err=>{if(name==='wiki')notify('Wiki access blocked. Publish the supplied Wiki Firestore rules before using this tab.',true);else issue(err);console.error(name,err);}));}}
 
-// -------- Research Wiki: safe text rendering, editorial workflow, and linked Q&A --------
+// -------- Research Wiki: collaborative editing by approved group members --------
 const wikiTagOptions = ['Computational Chemistry','Machine Learning','Programming','Research Methods','Literature','Other'];
-const wikiPermitted = a => isEditor || (a?.authorId === user?.uid && a?.status === 'draft');
+const wikiPermitted = a => isMember && !!a;
 function renderWiki(){
   $('wiki-count').textContent=wikiArticles.filter(a=>a.status==='published').length;
   $('stat-wiki').textContent=wikiArticles.filter(a=>a.status==='published').length;
@@ -92,7 +92,7 @@ function renderWiki(){
   $('wiki-list').innerHTML=filtered.length?filtered.map(a=>`<article class="wiki-card">
     <div class="wiki-card-icon">▤</div><div class="wiki-card-content"><button type="button" class="question-title" data-wiki-open="${a.id}">${escapeHTML(a.title)}</button>
     <p class="question-excerpt">${escapeHTML(short(a.summary,240))}</p>
-    <div class="question-meta"><span class="tag">${escapeHTML(a.tag)}</span><span class="wiki-state ${a.status==='published'?'published':'draft'}">${a.status==='published'?'✓ Published':'Draft · in review'}</span><span>by ${escapeHTML(a.authorName||'Group member')}</span><span>· ${time(a.updatedAt||a.createdAt)}</span><span>${(a.questionIds||[]).length} discussions</span></div></div></article>`).join(''):
+    <div class="question-meta"><span class="tag">${escapeHTML(a.tag)}</span><span class="wiki-state ${a.status==='published'?'published':'draft'}">${a.status==='published'?'✓ Published':'Unpublished legacy draft'}</span><span>by ${escapeHTML(a.authorName||'Group member')}</span><span>· ${time(a.updatedAt||a.createdAt)}</span><span>${(a.questionIds||[]).length} discussions</span></div></div></article>`).join(''):
     '<div class="empty-state">No Wiki articles match. Create the first summary of a research discussion.</div>';
 }
 function renderWikiDetail(){
@@ -104,7 +104,7 @@ function renderWikiDetail(){
     return q?`<li><button type="button" class="text-link wiki-discussion-link" data-wiki-question="${q.id}">${escapeHTML(q.title)}</button></li>`:'';
   }).filter(Boolean).join('');
   $('wiki-detail').innerHTML=`<button class="detail-back" type="button" data-wiki-back>← All Wiki articles</button>
-    <div class="question-meta"><span class="tag">${escapeHTML(a.tag)}</span><span class="wiki-state ${a.status==='published'?'published':'draft'}">${a.status==='published'?'✓ Published':'Draft · awaiting review'}</span></div>
+    <div class="question-meta"><span class="tag">${escapeHTML(a.tag)}</span><span class="wiki-state ${a.status==='published'?'published':'draft'}">${a.status==='published'?'✓ Published':'Unpublished legacy draft'}</span></div>
     <h2 class="wiki-article-title">${escapeHTML(a.title)}</h2>
     <p class="wiki-byline">Created by ${escapeHTML(a.authorName||'Group member')} · Last updated ${time(a.updatedAt||a.createdAt)}</p>
     <p class="wiki-article-summary">${escapeHTML(a.summary)}</p>
@@ -112,8 +112,8 @@ function renderWikiDetail(){
     ${a.references?.trim()?`<section class="wiki-related"><h3>References</h3><div class="post-body markdown-render">${formatBody(a.references)}</div></section>`:''}
     ${links?`<section class="wiki-related"><h3>Related Q&A discussions</h3><ul>${links}</ul></section>`:''}
     <div class="wiki-article-actions">${wikiPermitted(a)?`<button class="btn btn-outline compact" type="button" data-wiki-edit="${a.id}">Edit article</button>`:''}
-    ${isEditor&&a.status==='draft'?`<button class="btn btn-primary compact" type="button" data-wiki-publish="${a.id}">Approve & publish</button>`:''}
-    ${isEditor&&a.status==='published'?`<button class="btn btn-outline compact" type="button" data-wiki-unpublish="${a.id}">Return to draft</button>`:''}</div>`;
+    ${isMember&&a.status==='draft'?`<button class="btn btn-primary compact" type="button" data-wiki-publish="${a.id}">Publish now</button>`:''}
+</div>`;
   typesetAll($('wiki-detail'));
 }
 function openWikiEditor(id=null,fromQuestion=null){
@@ -122,7 +122,7 @@ function openWikiEditor(id=null,fromQuestion=null){
   if(id&&(!a||!wikiPermitted(a))){notify('You cannot edit this Wiki article.',true);return;}
   wikiEditingId=id;$('wiki-form').reset();$('wiki-form-message').textContent='';
   $('wiki-form-heading').textContent=a?'Edit Wiki article':'Create Wiki article';
-  $('wiki-save').textContent=a?'Save changes':'Save draft';
+  $('wiki-save').textContent=a?'Save changes':'Publish article';
   $('wiki-title').value=a?.title||(fromQuestion?questions.find(q=>q.id===fromQuestion)?.title||'':'');
   $('wiki-tag').value=a?.tag||(fromQuestion?questions.find(q=>q.id===fromQuestion)?.tag||wikiTagOptions[0]:wikiTagOptions[0]);
   $('wiki-summary').value=a?.summary||'';
@@ -143,25 +143,27 @@ $('wiki-detail').addEventListener('click',async e=>{
   const discussion=e.target.closest('[data-wiki-question]');
   if(discussion){switchView('questions');selected=discussion.dataset.wikiQuestion;render();return;}
   const edit=e.target.closest('[data-wiki-edit]');if(edit){openWikiEditor(edit.dataset.wikiEdit);return;}
-  const publish=e.target.closest('[data-wiki-publish]'),unpublish=e.target.closest('[data-wiki-unpublish]');
-  const action=publish||unpublish;if(!action||!isEditor||!requireAuth())return;
-  const id=publish?.dataset.wikiPublish||unpublish?.dataset.wikiUnpublish;
+  const publish=e.target.closest('[data-wiki-publish]');
+  if(!publish||!requireAuth())return;
+  const id=publish.dataset.wikiPublish;
   const article=wikiArticles.find(a=>a.id===id);
-  if(!article)return;
-  if(publish&&!confirm('Publish this article as a reviewed group Wiki entry?'))return;
-  try{await updateDoc(doc(db,'wiki',id),{status:publish?'published':'draft',updatedAt:serverTimestamp()});notify(publish?'Wiki article published.':'Wiki article returned to draft.');}
-  catch(err){issue(err);}
+  if(!article||article.status!=='draft')return;
+  try{
+    await updateDoc(doc(db,'wiki',id),{status:'published',updatedAt:serverTimestamp()});
+    notify('Wiki article published for all approved members.');
+  }catch(err){issue(err);}
+
 });
 $('wiki-form').addEventListener('submit',async e=>{
   e.preventDefault();if(!requireAuth())return;
   const button=$('wiki-save');button.disabled=true;
   $('wiki-form-message').textContent='';
   const questionIds=[...$('wiki-question-options').querySelectorAll('input:checked')].map(x=>x.value).slice(0,12);
-  const payload={title:$('wiki-title').value.trim(),tag:$('wiki-tag').value,summary:$('wiki-summary').value.trim(),content:$('wiki-content').value.trim(),references:$('wiki-references').value.trim(),questionIds,updatedAt:serverTimestamp()};
+  const payload={title:$('wiki-title').value.trim(),tag:$('wiki-tag').value,summary:$('wiki-summary').value.trim(),content:$('wiki-content').value.trim(),references:$('wiki-references').value.trim(),questionIds,status:'published',updatedAt:serverTimestamp()};
   try{
     if(wikiEditingId){await updateDoc(doc(db,'wiki',wikiEditingId),payload);wikiSelected=wikiEditingId;}
-    else {const item=await addDoc(collection(db,'wiki'),{...payload,authorId:user.uid,authorName:user.displayName||$('user-chip').textContent||user.email,status:'draft',createdAt:serverTimestamp()});wikiSelected=item.id;}
-    $('wiki-dialog').close();const targetArticle=wikiSelected;switchView('wiki');wikiSelected=targetArticle;renderWiki();notify(wikiEditingId?'Wiki article updated.':'Wiki draft saved for review.');
+    else {const item=await addDoc(collection(db,'wiki'),{...payload,authorId:user.uid,authorName:user.displayName||$('user-chip').textContent||user.email,createdAt:serverTimestamp()});wikiSelected=item.id;}
+    $('wiki-dialog').close();const targetArticle=wikiSelected;switchView('wiki');wikiSelected=targetArticle;renderWiki();notify(wikiEditingId?'Wiki article updated and published.':'Wiki article published.');
   }catch(error){$('wiki-form-message').textContent=error.message||'Unable to save article';$('wiki-form-message').className='form-message error-text';issue(error);}
   finally{button.disabled=false;}
 });
@@ -246,7 +248,7 @@ document.querySelectorAll('[data-topic]').forEach(button=>button.addEventListene
 if(configured){try{const app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);$('setup-banner').classList.add('hidden');onAuthStateChanged(auth,async next=>{
   const epoch=++authEpoch;
   unsubscribe.forEach(fn=>fn());unsubscribe=[];
-  isMember=false;isEditor=false;user=null;questions=[];answers=[];votes=[];wikiArticles=[];selected=null;wikiSelected=null;
+  isMember=false;user=null;questions=[];answers=[];votes=[];wikiArticles=[];selected=null;wikiSelected=null;
   $('user-chip').classList.add('hidden');$('auth-button').textContent='Sign in';$('change-password-button').classList.add('hidden');
   $('questions-list').innerHTML='<div class="empty-state">Sign in with a group-approved account to view questions.</div>';
   if(!next){renderRanks();return;}
@@ -257,7 +259,7 @@ if(configured){try{const app=initializeApp(firebaseConfig);auth=getAuth(app);db=
       notify('This account is not approved for the MOLDIS research group. Ask the group administrator for access.',true);
       await signOut(auth);return;
     }
-    user=next;isMember=true;isEditor=membership.data().role==='admin'||membership.data().role==='editor';
+    user=next;isMember=true;
     $('user-chip').classList.remove('hidden');
     $('user-chip').textContent=user.displayName||membership.data().name||user.email;
     $('auth-button').textContent='Sign out';$('change-password-button').classList.remove('hidden');
