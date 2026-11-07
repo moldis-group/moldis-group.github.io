@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab Escape — BTS Lab Crew Edition</title>
+<style>
+:root{color-scheme:light;--ink:#243b4d;--mint:#e8faf3;--accent:#1a8874;--pink:#d95c75}*{box-sizing:border-box}
+body{margin:0;background:#f4f8fb;color:var(--ink);font:15px system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:22px}
+main{width:min(1050px,100%)}h1{margin:0;font-size:clamp(24px,4vw,36px);letter-spacing:-.04em}p{line-height:1.5;margin:6px 0 15px;color:#567084}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.stats{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:9px 12px;border-radius:14px;background:white;border:1px solid #dce8ed;font-weight:700}.chip b{color:#187b6e}
+.game{position:relative;margin-top:14px;border-radius:20px;overflow:hidden;border:2px solid #cfe1e7;box-shadow:0 16px 45px #2b667518;background:#f8fcff}canvas{display:block;width:100%;height:auto;touch-action:none}
+.character-choice{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;justify-content:center;margin:14px 0}.character-choice button{padding:10px 5px;font-size:13px}.character-choice button{background:#eef5f8;color:#28495c;border:2px solid #d3e2e8;min-width:0}.character-choice button.selected{background:#d8f5e9;color:#0c725d;border-color:#21a180}.character-choice button:focus-visible{outline:3px solid #f6ba68;outline-offset:2px}.overlay{position:absolute;inset:0;background:#ffffffbd;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center}.overlay[hidden]{display:none}.panel{max-width:520px;background:white;border:1px solid #d7e6e8;border-radius:20px;box-shadow:0 12px 40px #264d6020;padding:25px}.panel h2{font-size:25px;margin:0 0 9px}.panel p{margin:6px 0 16px}
+button{appearance:none;border:0;cursor:pointer;background:#168b78;color:white;border-radius:12px;padding:12px 18px;font-weight:800;font-size:15px}button:hover{background:#11705f}button.secondary{background:#e1f1ec;color:#116a5e}.buttons{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.instructions{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:13px}.instructions span{font-size:13px;color:#597384}.instructions .buttons{justify-content:flex-end}.note{font-size:13px;color:#66808e;margin-top:15px}.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:#597384;margin-top:8px}.legend strong{color:#263f53}
+kbd{background:white;border:1px solid #cbdde2;box-shadow:0 2px #b8cbd2;border-radius:5px;padding:2px 5px;font:inherit}
+@media(max-width:600px){.character-choice{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.character-choice button{font-size:11px;padding:9px 2px}body{padding:9px}.panel{padding:17px}.chip{font-size:12px;padding:6px 9px}.instructions{justify-content:center}.instructions .buttons{width:100%}.instructions button{flex:1}}
+</style>
+</head>
+<body><main>
+<div class="top"><div><h1>🧪 Lab Escape</h1><p>BTS Lab Crew Edition · Seven anime-style researchers, one runaway reaction!</p></div><div class="stats"><div class="chip">Score <b id="score">0</b></div><div class="chip">Best <b id="best">0</b></div><div class="chip">Collected <b id="collected">0</b></div><div class="chip">Level <b id="level">1</b></div></div></div>
+<div class="game"><canvas id="screen" width="1000" height="450" aria-label="Chemistry runner game"></canvas>
+<div class="overlay" id="overlay"><div class="panel"><h2 id="heading">Choose your BTS lab researcher!</h2><p id="message">Dodge dangerous molecules, duck under airborne radicals, and collect lab coats, safety glasses, and catalysts for bonus points.</p><div id="choice" class="character-choice"><button type="button" data-avatar="rm" class="selected" aria-pressed="true">RM</button><button type="button" data-avatar="jin" aria-pressed="false">Jin</button><button type="button" data-avatar="suga" aria-pressed="false">SUGA</button><button type="button" data-avatar="jhope" aria-pressed="false">j-hope</button><button type="button" data-avatar="jimin" aria-pressed="false">Jimin</button><button type="button" data-avatar="v" aria-pressed="false">V</button><button type="button" data-avatar="jk" aria-pressed="false">Jungkook</button></div><div class="buttons"><button id="start">Start experiment</button></div><div class="legend" style="justify-content:center"><span>🔴 Hazards = avoid</span><span>🟢 Lab gear = +points</span></div></div></div></div>
+<div class="instructions"><span><kbd>Space</kbd> / <kbd>↑</kbd> jump &nbsp; <kbd>↓</kbd> hold to duck &nbsp; <kbd>P</kbd> pause &nbsp; <kbd>R</kbd> restart</span><div class="buttons"><button class="secondary" id="jump">↑ Jump</button><button class="secondary" id="duck" aria-pressed="false">↓ Duck: OFF</button><button class="secondary" id="pause">Pause</button></div></div>
+<div class="note">Choose one of seven BTS-inspired anime lab researchers. Different hairstyles, hair colors and outfit accents identify each character. These are stylized fan-art interpretations, not official portraits. Jump over spinning flasks and tubes, duck under airborne hazards, and collect lab coats or safety glasses. Runs entirely offline; no libraries or server required.</div>
+</main>
+<script>
+(()=>{'use strict';
+const c=document.getElementById('screen'),ctx=c.getContext('2d'),o=document.getElementById('overlay'),heading=document.getElementById('heading'),message=document.getElementById('message'),startBtn=document.getElementById('start');
+const els={score:document.getElementById('score'),best:document.getElementById('best'),collected:document.getElementById('collected'),level:document.getElementById('level')};
+const W=1000,H=450,ground=364;let running=false,paused=false,dead=false,score=0,best=0,collected=0,level=1,speed=5.7,frame=0,spawnClock=50,objects=[],particles=[],last=0,acc=0,duckHeld=false,duckToggle=false,avatar='rm';
+try{best=Number(localStorage.getItem('labescape_best')||0)}catch(e){}els.best.textContent=best;
+const player={x:116,y:0,vy:0,w:43,h:74,onGround:true,duck:false};
+const rand=(a,b)=>a+Math.random()*(b-a);
+function reset(){running=true;paused=false;dead=false;score=0;collected=0;level=1;speed=5.7;frame=0;spawnClock=60;objects=[];particles=[];player.y=ground-74;player.vy=0;player.onGround=true;player.duck=false;duckHeld=false;duckToggle=false;updateDuckButton();o.hidden=true;document.getElementById('pause').textContent='Pause';updateUI()}
+function updateUI(){els.score.textContent=Math.floor(score);els.best.textContent=best;els.collected.textContent=collected;els.level.textContent=level}
+function jump(){if(!running||paused)return;if(player.onGround){duckToggle=false;duckHeld=false;updateDuckButton();player.y=ground-74;player.vy=-15.7;player.onGround=false;player.duck=false;burst(player.x+20,ground,7,'#9fcacb')}}
+const duckBtn=document.getElementById('duck');
+function updateDuckButton(){duckBtn.textContent=duckToggle?'↓ Duck: ON':'↓ Duck: OFF';duckBtn.setAttribute('aria-pressed',String(duckToggle));duckBtn.style.background=duckToggle?'#1a8874':'';duckBtn.style.color=duckToggle?'white':''}
+function setDuck(v){duckHeld=v;if(running&&!paused&&player.onGround){player.duck=duckToggle||duckHeld;player.y=ground-(player.duck?44:74)}}
+function toggleDuck(){if(!running)reset();if(paused)return;duckToggle=!duckToggle;player.duck=duckToggle||duckHeld;if(player.onGround)player.y=ground-(player.duck?44:74);updateDuckButton()}
+function gameOver(){running=false;dead=true;const s=Math.floor(score);if(s>best){best=s;try{localStorage.setItem('labescape_best',String(best))}catch(e){}}updateUI();heading.textContent='Experiment terminated!';message.textContent=`You scored ${s} points and collected ${collected} bonus items. Try another run!`;startBtn.textContent='Run again';document.getElementById('choice').hidden=false;o.hidden=false;burst(player.x+23,player.y+30,30,'#e17879')}
+function spawn(){
+const r=Math.random();let type;
+if(r<.17)type='catalyst';else if(r<.28)type='coat';else if(r<.40)type='glasses';else if(r<.54)type='flask';else if(r<.64)type='tube';else if(r<.83)type='ground';else type='flying';
+const labels={ground:['H₂SO₄','HF','Br₂','Cl₂','O₃'],flying:['•OH','•CH₃','•NO','O₂•⁻'],catalyst:['Pd','Ni','Fe','Cu']};
+const label=(labels[type]||[])[Math.floor(Math.random()*(labels[type]||[]).length)]||'';
+const bonus=['coat','glasses','catalyst'].includes(type);
+let y=type==='flying'?ground-120:bonus?(Math.random()<.65?ground-104:ground-157):ground-57;
+objects.push({x:W+45,y,w:55,h:52,type,label,phase:rand(0,6.3),angle:rand(-1,1),spin:rand(.065,.12)*(Math.random()<.5?-1:1)});
+spawnClock=rand(74,116)-Math.min(level*3,23);
+}
+function burst(x,y,n,color){for(let i=0;i<n;i++)particles.push({x,y,vx:rand(-4.5,4.5),vy:rand(-6,1),life:rand(15,38),color})}
+function collision(a,b){return a.x+7<b.x+b.w-8&&a.x+a.w-8>b.x+7&&a.y+6<b.y+b.h-8&&a.y+a.h-5>b.y+7}
+function update(){frame++;score+=.11;level=1+Math.floor(score/85);speed=Math.min(12.8,5.7+level*.43);player.duck=(duckHeld||duckToggle)&&player.onGround;let ph=player.duck?44:74;if(player.onGround)player.y=ground-ph;player.y+=player.vy;player.vy+=.83;if(player.y+ph>=ground){player.y=ground-ph;player.vy=0;player.onGround=true}else player.onGround=false;
+// preserve player's feet when toggling duck
+if(player.onGround)player.y=ground-ph;
+if(--spawnClock<=0)spawn();for(let i=objects.length-1;i>=0;i--){const a=objects[i];a.x-=speed;a.phase+=.045;if(a.type==='flying')a.y=ground-120+Math.sin(a.phase)*7;if(a.type==='flask'||a.type==='tube')a.angle+=a.spin;
+if(collision({x:player.x,y:player.y,w:player.w,h:ph},a)){if(['catalyst','coat','glasses'].includes(a.type)){score+=a.type==='catalyst'?15:25;collected++;burst(a.x+25,a.y+24,15,'#4abf9c');objects.splice(i,1)}else{gameOver();return}}else if(a.x+a.w<0)objects.splice(i,1)}
+for(let i=particles.length-1;i>=0;i--){let p=particles[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.18;p.life--;if(p.life<=0)particles.splice(i,1)}if(frame%5===0)updateUI()}
+function roundRect(x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}}
+function text(s,x,y,size,color,bold=false){ctx.fillStyle=color;ctx.font=`${bold?'700':'500'} ${size}px system-ui,Arial`;ctx.textAlign='center';ctx.fillText(s,x,y)}
+function drawItem(a){
+const t=a.type,green=['catalyst','coat','glasses'].includes(t);
+ctx.save();ctx.translate(a.x+27,a.y+26);
+if(t==='flask'||t==='tube'){
+  ctx.rotate(a.angle);ctx.lineWidth=3.5;ctx.strokeStyle='#3f6c86';ctx.fillStyle='#c7eaf3';
+  ctx.beginPath();
+  if(t==='flask'){
+    ctx.moveTo(-7,-24);ctx.lineTo(7,-24);ctx.lineTo(7,-8);ctx.lineTo(21,15);ctx.quadraticCurveTo(26,23,15,24);ctx.lineTo(-15,24);ctx.quadraticCurveTo(-26,23,-21,15);ctx.lineTo(-7,-8);ctx.closePath();
+  }else{
+    ctx.moveTo(-11,-24);ctx.lineTo(11,-24);ctx.lineTo(11,15);ctx.arc(0,15,11,0,Math.PI);ctx.lineTo(-11,-24);ctx.closePath();
+  }
+  ctx.fill();ctx.stroke();ctx.save();ctx.clip();ctx.fillStyle=t==='flask'?'#ff83a5':'#b68afa';ctx.beginPath();if(t==='flask'){ctx.moveTo(-24,7);ctx.lineTo(24,7);ctx.lineTo(24,26);ctx.lineTo(-24,26)}else{ctx.rect(-12,3,24,25)}ctx.fill();ctx.restore();
+  ctx.strokeStyle='#ffffffb0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-4,-15);ctx.lineTo(-4,0);ctx.stroke();
+}else if(t==='coat'){
+  ctx.fillStyle='#fff';ctx.strokeStyle='#3c9b86';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(-12,-22);ctx.lineTo(-22,-10);ctx.lineTo(-17,1);ctx.lineTo(-12,-4);ctx.lineTo(-12,24);ctx.lineTo(12,24);ctx.lineTo(12,-4);ctx.lineTo(17,1);ctx.lineTo(22,-10);ctx.lineTo(12,-22);ctx.lineTo(5,-17);ctx.lineTo(0,-9);ctx.lineTo(-5,-17);ctx.closePath();ctx.fill();ctx.stroke();ctx.strokeStyle='#a6c9d1';ctx.beginPath();ctx.moveTo(0,-8);ctx.lineTo(0,23);ctx.moveTo(-10,10);ctx.lineTo(-3,10);ctx.moveTo(3,10);ctx.lineTo(10,10);ctx.stroke();
+}else if(t==='glasses'){
+ ctx.strokeStyle='#188e7b';ctx.lineWidth=5;ctx.lineCap='round';roundRect(-24,-11,21,22,8,'#c9f4eb','#188e7b');roundRect(3,-11,21,22,8,'#c9f4eb','#188e7b');ctx.beginPath();ctx.moveTo(-3,-1);ctx.lineTo(3,-1);ctx.stroke();
+}else{
+ ctx.rotate(Math.sin(a.phase)*.09);ctx.strokeStyle=green?'#2d9c83':'#d76a76';ctx.lineWidth=4;const pts=[[-16,-7],[13,-15],[19,13],[-9,17]];ctx.beginPath();ctx.moveTo(...pts[0]);for(let j=1;j<pts.length;j++)ctx.lineTo(...pts[j]);ctx.closePath();ctx.stroke();for(let j=0;j<4;j++){const [x,y]=pts[j];ctx.beginPath();ctx.arc(x,y,j===2?11:8,0,Math.PI*2);ctx.fillStyle=green?'#8bdcc0':t==='flying'?'#f5b3be':'#f39ca5';ctx.fill();ctx.strokeStyle=green?'#3d9c84':'#d96b75';ctx.lineWidth=2;ctx.stroke()}
+}
+ctx.restore();
+const caption={coat:'LAB COAT',glasses:'GOGGLES',flask:'FLASK!',tube:'TEST TUBE!'}[t]||a.label;
+roundRect(a.x-20,a.y-31,94,23,8,green?'#def8e8':'#fff0ee',green?'#8acdb1':'#f0b3b6');text(caption,a.x+27,a.y-15,13,green?'#146b55':'#a83c4e',true);
+}
+function researcher(){
+const h=player.duck?44:74,base=player.y+h;
+const phase=player.onGround?Math.sin(frame*.25):0;
+const swing=player.onGround?Math.sin(frame*.25)*7:3;
+const bounce=player.onGround?Math.abs(Math.sin(frame*.25))*1.6:0;
+const looks={
+ rm:{hair:'#62779b',accent:'#6593d9',pants:'#364a72',shoe:'#273a54',style:1},
+ jin:{hair:'#352e42',accent:'#f2a7af',pants:'#465477',shoe:'#293752',style:0},
+ suga:{hair:'#9b9bb6',accent:'#8d80d7',pants:'#44446c',shoe:'#292a46',style:2},
+ jhope:{hair:'#a16a4e',accent:'#f2b66e',pants:'#53647b',shoe:'#34415a',style:3},
+ jimin:{hair:'#c9a4bf',accent:'#e39ac5',pants:'#4b537e',shoe:'#353858',style:4},
+ v:{hair:'#4f433f',accent:'#7dbda0',pants:'#425869',shoe:'#293a4a',style:5},
+ jk:{hair:'#222a35',accent:'#76a7c8',pants:'#313c57',shoe:'#222d44',style:6}
+};
+const palette=looks[avatar]||looks.rm;
+function hairArt(top,faceX,faceW){
+  const y=top,x=faceX,w=faceW;
+  ctx.fillStyle=palette.hair;
+  ctx.beginPath();ctx.moveTo(x-2,y+10);
+  ctx.quadraticCurveTo(x-5,y-3,x+w*.40,y-7);
+  ctx.quadraticCurveTo(x+w+6,y-9,x+w+3,y+8);
+  ctx.lineTo(x+w+1,y+13);
+  // seven distinct anime fringe shapes
+  if(palette.style===0){ctx.lineTo(x+w*.58,y+7);ctx.lineTo(x+w*.47,y+13);ctx.lineTo(x+w*.35,y+6)}
+  else if(palette.style===1){ctx.lineTo(x+w*.76,y+5);ctx.lineTo(x+w*.56,y+12);ctx.lineTo(x+w*.28,y+6)}
+  else if(palette.style===2){ctx.lineTo(x+w*.66,y+14);ctx.lineTo(x+w*.50,y+8);ctx.lineTo(x+w*.2,y+15)}
+  else if(palette.style===3){ctx.lineTo(x+w*.7,y+6);ctx.lineTo(x+w*.52,y+13);ctx.lineTo(x+w*.22,y+7)}
+  else if(palette.style===4){ctx.lineTo(x+w*.78,y+14);ctx.lineTo(x+w*.55,y+8);ctx.lineTo(x+w*.32,y+15)}
+  else if(palette.style===5){ctx.lineTo(x+w*.73,y+11);ctx.lineTo(x+w*.52,y+6);ctx.lineTo(x+w*.22,y+13)}
+  else{ctx.lineTo(x+w*.82,y+7);ctx.lineTo(x+w*.52,y+16);ctx.lineTo(x+w*.34,y+7)}
+  ctx.lineTo(x-2,y+14);ctx.closePath();ctx.fill();
+  // hair highlights
+  ctx.strokeStyle='#ffffff48';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+4,y+1);ctx.quadraticCurveTo(x+w*.40,y-5,x+w*.69,y-1);ctx.stroke();
+  if(palette.style===4||palette.style===5){ctx.fillStyle=palette.hair;ctx.beginPath();ctx.ellipse(x+w+1,y+14,3.8,9,-.2,0,Math.PI*2);ctx.fill()}
+}
+ctx.save();
+ctx.fillStyle='#b5cbd1';ctx.globalAlpha=player.onGround?.65:.22;ctx.beginPath();ctx.ellipse(player.x+22,ground+2,player.onGround?28:21,5,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ctx.translate(player.x,base-bounce);
+if(player.duck){
+  // crouched pose
+  ctx.lineCap='round';
+  ctx.strokeStyle='#efc2a8';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(17,-28);ctx.lineTo(10,-16);ctx.moveTo(34,-28);ctx.lineTo(40,-18);ctx.stroke();
+  ctx.fillStyle=palette.pants;roundRect(3,-16,18,10,4,palette.pants,'#29415d');roundRect(24,-16,18,10,4,palette.pants,'#29415d');
+  ctx.fillStyle=palette.shoe;roundRect(1,-7,22,6,3,palette.shoe);roundRect(22,-7,22,6,3,palette.shoe);
+  // lab coat torso
+  roundRect(8,-43,31,24,9,'#ffffff','#5b9baf');
+  ctx.fillStyle=palette.accent;roundRect(18,-38,11,12,4,palette.accent);
+  ctx.strokeStyle='#90bfcb';ctx.lineWidth=1.7;ctx.beginPath();ctx.moveTo(23,-43);ctx.lineTo(23,-20);ctx.moveTo(15,-32);ctx.lineTo(21,-28);ctx.moveTo(31,-32);ctx.lineTo(25,-28);ctx.stroke();
+  // head
+  ctx.fillStyle='#ffd7bc';ctx.beginPath();ctx.roundRect(16,-57,17,16,7);ctx.fill();ctx.strokeStyle='#ae765d';ctx.lineWidth=1.5;ctx.stroke();
+  // compact anime haircut while crouching
+  hairArt(-58,16,18);
+  // face
+  ctx.fillStyle='#3c5368';ctx.beginPath();ctx.arc(21,-50,1.1,0,Math.PI*2);ctx.arc(28,-50,1.1,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#c57274';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(24.5,-46,3,0.2,2.9);ctx.stroke();
+}else{
+  // legs behind coat
+  const leftLegX=16-swing*.32,rightLegX=31+swing*.32;
+  ctx.strokeStyle=palette.pants;ctx.lineWidth=8;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(20,-23);ctx.lineTo(leftLegX,-3);ctx.moveTo(29,-23);ctx.lineTo(rightLegX,-3);ctx.stroke();
+  ctx.strokeStyle=palette.shoe;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(leftLegX-4,-3);ctx.lineTo(leftLegX+5,-3);ctx.moveTo(rightLegX-4,-3);ctx.lineTo(rightLegX+5,-3);ctx.stroke();
+  // torso and coat
+  roundRect(10,-62,32,39,11,'#ffffff','#5b9baf');
+  ctx.fillStyle=palette.accent;roundRect(20,-55,12,18,5,palette.accent);
+  ctx.strokeStyle='#90bfcb';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(26,-62);ctx.lineTo(26,-24);ctx.moveTo(19,-54);ctx.lineTo(26,-47);ctx.moveTo(33,-54);ctx.lineTo(26,-47);ctx.moveTo(17,-33);ctx.lineTo(22,-33);ctx.moveTo(30,-33);ctx.lineTo(35,-33);ctx.stroke();
+  // arms
+  ctx.strokeStyle='#efc2a8';ctx.lineWidth=6.5;ctx.beginPath();
+  if(player.onGround){
+    ctx.moveTo(12,-52);ctx.lineTo(4,-39-swing*.35);ctx.moveTo(40,-52);ctx.lineTo(48,-39+swing*.35);
+  }else{
+    ctx.moveTo(13,-51);ctx.lineTo(6,-61);ctx.moveTo(39,-51);ctx.lineTo(48,-42);
+  }
+  ctx.stroke();
+  // head
+  ctx.fillStyle='#ffd7bc';ctx.beginPath();ctx.roundRect(16,-82,20,20,8);ctx.fill();ctx.strokeStyle='#ae765d';ctx.lineWidth=1.6;ctx.stroke();
+  // neck
+  ctx.fillStyle='#ffd7bc';ctx.fillRect(23,-65,6,5);
+  // distinctive BTS-inspired anime hair and fringe
+  hairArt(-85,16,20);
+  // face
+  ctx.fillStyle='#394f61';ctx.beginPath();ctx.arc(22,-73,1.2,0,Math.PI*2);ctx.arc(30,-73,1.2,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#c57274';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(26,-68,3.5,0.25,2.9);ctx.stroke();
+  ctx.fillStyle='#f2b0b2';ctx.globalAlpha=.55;ctx.beginPath();ctx.arc(19,-68,2,0,Math.PI*2);ctx.arc(33,-68,2,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+}
+ctx.restore();
+const names={rm:'RM',jin:'Jin',suga:'SUGA',jhope:'j-hope',jimin:'Jimin',v:'V',jk:'Jungkook'};
+ctx.save();ctx.font='700 13px system-ui';ctx.textAlign='center';
+const nm=names[avatar]||'RM';const labelY=Math.max(21,player.y-21);
+const tw=ctx.measureText(nm).width;
+roundRect(player.x+21-tw/2-9,labelY-15,tw+18,21,9,'#ffffffdd','#b5d5dd');
+ctx.fillStyle='#34596a';ctx.fillText(nm,player.x+21,labelY);ctx.restore();
+}
+function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#f4fbff';ctx.fillRect(0,0,W,H);
+// laboratory skyline
+ctx.fillStyle='#e2f1f4';for(let i=0;i<9;i++){let x=i*145-((frame*speed*.12)%145);roundRect(x,125,80,190,7,'#e9f4f8');ctx.fillStyle='#b8dce5';for(let k=0;k<3;k++)roundRect(x+14+k*19,143,12,20,3,'#c1e1e8');ctx.fillStyle='#e2f1f4'}
+ctx.fillStyle='#e4f2ed';ctx.fillRect(0,ground,W,H-ground);ctx.strokeStyle='#8cbbc1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,ground);ctx.lineTo(W,ground);ctx.stroke();ctx.fillStyle='#aacbcc';for(let x=0;x<W;x+=57){let dx=x-((frame*speed*.65)%57);ctx.fillRect(dx,ground+19,18,3)}
+// Open laboratory floor: the old table and its tab have been removed.
+text('MOLDIS · runaway reaction',160,54,19,'#53808e',true);text(`SPEED ${speed.toFixed(1)}×`,893,54,15,'#63909b');for(const a of objects)drawItem(a);researcher();for(const p of particles){ctx.globalAlpha=Math.max(0,Math.min(1,p.life/25));ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;
+if(paused){roundRect(404,175,192,76,15,'#ffffffea','#d2e1e6');text('PAUSED',500,221,27,'#275566',true)}}
+function loop(t){if(!last)last=t;acc+=Math.min(60,t-last);last=t;while(acc>=16.667){if(running&&!paused)update();acc-=16.667}draw();requestAnimationFrame(loop)}
+function togglePause(){if(!running)return;paused=!paused;document.getElementById('pause').textContent=paused?'Resume':'Pause'}
+document.querySelectorAll('[data-avatar]').forEach(btn=>btn.addEventListener('click',()=>{
+avatar=btn.dataset.avatar;document.querySelectorAll('[data-avatar]').forEach(b=>{const selected=b===btn;b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',String(selected))});
+}));startBtn.onclick=reset;document.getElementById('jump').onclick=()=>{if(!running)reset();jump()};duckBtn.onclick=toggleDuck;document.getElementById('pause').onclick=togglePause;
+document.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();if(e.code==='KeyR'){reset();return}if(e.code==='KeyP'){togglePause();return}if(e.code==='Space'||e.code==='ArrowUp'){if(!running)reset();if(!e.repeat)jump()}if(e.code==='ArrowDown')setDuck(true)});document.addEventListener('keyup',e=>{if(e.code==='ArrowDown')setDuck(false)});c.addEventListener('pointerdown',()=>{if(!running)reset();else jump()});window.addEventListener('blur',()=>{if(running&&!paused)togglePause()});player.y=ground-74;updateDuckButton();requestAnimationFrame(loop);
+})();
+</script></body></html>
