@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Molecular Tetris | Element Edition</title>
+<style>
+:root{color-scheme:dark;--bg:#090f1a;--panel:#111c2c;--line:#2d4159;--ink:#e8f0fc;--muted:#9cb0ca;--blue:#73b9ff;--mint:#78dec2;--gold:#ffd380;--red:#ff8293}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body{background:radial-gradient(ellipse at 40% 0%,#162943 0%,#0a1220 49%,#080d16 100%)}.wrap{max-width:1080px;margin:auto;padding:24px 20px 36px}header{display:flex;align-items:end;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:18px}h1{font-size:clamp(28px,4vw,42px);margin:0;letter-spacing:-.05em}h1 span{color:var(--mint)}.eyebrow{font-size:11px;letter-spacing:.19em;color:var(--mint);font-weight:800;margin-bottom:4px}.subtitle{color:var(--muted);font-size:13px;margin:7px 0 0}.headlink{font-size:12px;letter-spacing:.07em;color:var(--muted);border:1px solid var(--line);padding:8px 10px;border-radius:8px}.layout{display:grid;grid-template-columns:230px minmax(310px,450px) 230px;gap:14px;align-items:start;justify-content:center}.panel,.boardbox{background:linear-gradient(150deg,#15243a,#0e1827);border:1px solid #2a3e57;border-radius:15px;box-shadow:0 10px 35px #0003}.panel{padding:16px;margin-bottom:14px}.panel h2{font-size:11px;color:#afc2df;letter-spacing:.13em;text-transform:uppercase;margin:0 0 14px}.metric{display:flex;justify-content:space-between;border-bottom:1px solid #27394f;padding:8px 0;gap:10px;font-size:14px}.metric:last-child{border-bottom:0}.metric strong{font-variant-numeric:tabular-nums;color:white}.metric .accent{color:var(--mint)}.boardbox{padding:12px;position:relative}.canvaswrap{width:100%;position:relative;overflow:hidden;border:1px solid #40546a;border-radius:9px;background:#0c1420}canvas{display:block;width:100%;touch-action:none}#board{aspect-ratio:10/17}#preview{width:100%;max-height:112px;aspect-ratio:2/1}.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;background:#091321df;text-align:center;padding:20px}.overlay.hidden{display:none}.overlay .big{font-size:32px;font-weight:850;letter-spacing:-.04em}.overlay p{color:#b5c7db;max-width:260px;font-size:13px;line-height:1.65;margin:0}.controls{display:flex;gap:7px;margin-top:10px}.controls button{flex:1}.btn{background:#223750;color:#e9f1ff;border:1px solid #415775;border-radius:9px;font:inherit;font-weight:700;padding:11px 12px;cursor:pointer;transition:background .15s}.btn:hover{background:#314967}.btn:focus-visible{outline:2px solid var(--mint);outline-offset:2px}.btn.primary{background:#197f79;border-color:#35a79a}.btn.primary:hover{background:#22998b}.btn.small{font-size:12px;padding:9px 9px}.mode{display:grid;grid-template-columns:1fr 1fr;gap:6px}.mode button{font-size:12px;padding:9px 4px}.mode button.active{background:#1f736d;border-color:#4cc1b0;color:white}.desc{font-size:12px;color:var(--muted);line-height:1.7;margin:12px 0 0}.legend{display:flex;gap:7px;flex-wrap:wrap}.chip{font-size:12px;border-radius:7px;padding:6px 8px;background:#192b40;border:1px solid #34475c}.chip b{color:var(--mint)}.kbd{display:inline-block;padding:2px 6px;margin:0 2px;border:1px solid #52627b;background:#1d2b3d;border-radius:5px;font-size:11px;color:#e4eafb}.hint{font-size:12px;line-height:1.75;color:var(--muted)}.feed{max-height:240px;overflow:auto;min-height:94px;display:flex;flex-direction:column;gap:7px}.event{background:#1b2e44;border-radius:8px;border-left:3px solid #6ddcc0;padding:8px 9px;font-size:12px}.event small{color:#adc4da;display:block;margin-top:3px}.event code{display:block;font:12px ui-monospace,SFMono-Regular,Consolas,monospace;color:#9fe8d6;overflow-wrap:anywhere;margin-top:6px;user-select:text}.warning{border-left-color:#eeb579}.board-caption{font-size:11px;color:#a7b9d0;text-align:center;margin-top:10px}.footer{text-align:center;font-size:11px;color:#8b9eb8;padding:10px 0}.gamebutton{min-width:145px}.caption{font-size:11px;color:#91a9c5;margin-top:8px}.achievement{min-height:31px;font-size:13px;color:var(--gold);font-weight:650}.responsive-only{display:none}.challenge-status{margin:0 0 10px;padding:10px 12px;border:1px solid #386c72;border-radius:9px;background:#102d34;font-size:12px;color:#a6eadc;display:flex;justify-content:space-between;gap:8px}.challenge-status[hidden]{display:none!important}.challenge-status strong{color:#fff}.challenge-goal{margin-top:9px;color:#d3f5e9;font-size:12px;line-height:1.5}@media(max-width:870px){.layout{grid-template-columns:minmax(270px,440px) minmax(210px,1fr)}.left{grid-column:2;grid-row:1}.boardbox{grid-column:1;grid-row:1/3}.right{grid-column:2;grid-row:2}}@media(max-width:620px){.wrap{padding:15px 10px}.layout{grid-template-columns:1fr;max-width:450px;margin:auto}.boardbox{grid-column:1;grid-row:1}.left,.right{grid-column:1;grid-row:auto}.panel{margin-bottom:10px}.left{display:grid;grid-template-columns:1fr 1fr;gap:10px}.left .panel{margin:0}.left .panel:last-child{grid-column:1/-1}.controls button{min-height:47px}.headlink{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div><h1>Molecular <span>Tetris</span></h1></div><div class="headlink">C · H · N · O · S · P · B · F · Cl · Br · I</div></header>
+<main class="layout">
+<div class="left">
+<section class="panel"><h2>Laboratory score</h2><div class="metric"><span>Score</span><strong class="accent" id="score">0</strong></div><div class="metric"><span>Molecules</span><strong id="molecules">0</strong></div><div class="metric"><span>Level</span><strong id="level">1</strong></div><div class="metric"><span>Best score</span><strong id="best">0</strong></div><div class="metric"><span>Longest molecule</span><strong id="longest">0 atoms</strong></div><div id="achievement" class="achievement" aria-live="polite"></div></section>
+
+<section class="panel"><h2>Available bonding sites</h2><div class="legend"><span class="chip">CH₃ <b>1</b></span><span class="chip">CH₂ <b>2</b></span><span class="chip">NH₂ <b>1</b></span><span class="chip">OH <b>1</b></span><span class="chip">SH <b>1</b></span><span class="chip">PH₂ <b>1</b></span><span class="chip">BH₂ <b>1</b></span><span class="chip">F/Cl/Br/I <b>1</b></span></div><p class="desc">Bonding sites are simplified for an arcade game. The game currently models single bonds and common neutral valences, not charges, bond orders, or all hypervalent compounds.</p></section>
+</div>
+<section class="boardbox" aria-label="Molecular Tetris game"><div class="canvaswrap"><canvas id="board" width="400" height="680" aria-label="Game grid, ten columns by seventeen rows"></canvas><div id="overlay" class="overlay"><div class="big" id="overlaytitle">Ready to react?</div><p id="overlaybody">Build molecules with falling functional-group fragments. Complete all available bonds to score.</p><button id="start" type="button" class="btn primary gamebutton">Start game</button></div></div><div class="controls"><button class="btn" type="button" id="left" aria-label="Move left">◀</button><button class="btn" type="button" id="right" aria-label="Move right">▶</button><button class="btn" type="button" id="rotate" aria-label="Rotate fragment">↻</button><button class="btn" type="button" id="down" aria-label="Soft drop">▼</button><button class="btn primary" type="button" id="drop" aria-label="Hard drop">DROP</button></div><div class="board-caption">Arrow keys move · ↑ rotates · Space drops · P pauses</div></section>
+<div class="right">
+<section class="panel"><h2>Next fragment</h2><canvas id="preview" width="210" height="112"></canvas><div class="caption" id="nextname">Upcoming structure</div></section>
+<section class="panel"><h2>Laboratory controls</h2><button id="pause" type="button" class="btn" style="width:100%;margin-bottom:8px">Pause / Resume</button><button id="restart" type="button" class="btn small" style="width:100%">New game</button><div class="hint" style="margin-top:12px"><span class="kbd">←</span><span class="kbd">→</span> move<br><span class="kbd">↑</span> rotate<br><span class="kbd">↓</span> soft drop<br><span class="kbd">Space</span> hard drop<br><span class="kbd">P</span> pause</div></section>
+<section class="panel"><h2>Discovery log</h2><div id="feed" class="feed" aria-live="polite"><div class="hint">Completed molecules and their SMILES will appear here.</div></div></section>
+</div>
+</main>
+</div>
+<script>
+(()=>{'use strict';
+const W=10,H=17;
+// Each tile includes implicit H atoms. Values are the remaining single-bond sites.
+const VAL={CH3:1,CH2:2,CH:3,C:4,OH:1,O:2,NH2:1,NH:2,N:3,SH:1,S:2,PH2:1,PH:2,P:3,BH2:1,BH:2,B:3,F:1,Cl:1,Br:1,I:1,H:1};
+const DISPLAY={CH3:'CH₃',CH2:'CH₂',CH:'CH',C:'C',OH:'OH',O:'O',NH2:'NH₂',NH:'NH',N:'N',SH:'SH',S:'S',PH2:'PH₂',PH:'PH',P:'P',BH2:'BH₂',BH:'BH',B:'B',F:'F',Cl:'Cl',Br:'Br',I:'I',H:'H'};
+const COLOR={CH3:'#647892',CH2:'#647892',CH:'#647892',C:'#647892',OH:'#d95e70',O:'#d95e70',NH2:'#578de0',NH:'#578de0',N:'#578de0',SH:'#cfaa3c',S:'#cfaa3c',PH2:'#c68a47',PH:'#c68a47',P:'#c68a47',BH2:'#c1789e',BH:'#c1789e',B:'#c1789e',F:'#56b990',Cl:'#56b990',Br:'#a8684a',I:'#805fc5',H:'#dfe7ef'};
+const FORMULA={CH3:{C:1,H:3},CH2:{C:1,H:2},CH:{C:1,H:1},C:{C:1},OH:{O:1,H:1},O:{O:1},NH2:{N:1,H:2},NH:{N:1,H:1},N:{N:1},SH:{S:1,H:1},S:{S:1},PH2:{P:1,H:2},PH:{P:1,H:1},P:{P:1},BH2:{B:1,H:2},BH:{B:1,H:1},B:{B:1},F:{F:1},Cl:{Cl:1},Br:{Br:1},I:{I:1},H:{H:1}};
+const TEMPLATES=[
+{name:'Methyl',p:[[0,0,'CH3']]},{name:'Methylene',p:[[0,0,'CH2']]},{name:'Methine',p:[[0,0,'CH']]},
+{name:'Hydrogen',p:[[0,0,'H']]},{name:'Hydroxyl',p:[[0,0,'OH']]},{name:'Oxygen bridge',p:[[0,0,'O']]},
+{name:'Amino',p:[[0,0,'NH2']]},{name:'Imine-like nitrogen',p:[[0,0,'NH']]},{name:'Amine center',p:[[0,0,'N']]},
+{name:'Thiol',p:[[0,0,'SH']]},{name:'Sulfide bridge',p:[[0,0,'S']]},
+{name:'Phosphino',p:[[0,0,'PH2']]},{name:'Phosphorus center',p:[[0,0,'P']]},
+{name:'Boranyl',p:[[0,0,'BH2']]},{name:'Boron center',p:[[0,0,'B']]},
+{name:'Fluorine',p:[[0,0,'F']]},{name:'Chlorine',p:[[0,0,'Cl']]},{name:'Bromine',p:[[0,0,'Br']]},{name:'Iodine',p:[[0,0,'I']]},
+{name:'Ethyl',p:[[0,0,'CH3'],[1,0,'CH2']]},{name:'Propyl',p:[[0,0,'CH3'],[1,0,'CH2'],[2,0,'CH2']]},
+{name:'Hydroxyethyl',p:[[0,0,'CH2'],[1,0,'OH']]},{name:'Aminoethyl',p:[[0,0,'CH2'],[1,0,'NH2']]},
+{name:'Thioether segment',p:[[0,0,'CH3'],[1,0,'S']]},{name:'Thiolate-like segment',p:[[0,0,'CH2'],[1,0,'SH']]},
+{name:'Methyl ether segment',p:[[0,0,'CH3'],[1,0,'O']]},{name:'Methylene pair',p:[[0,0,'CH2'],[1,0,'CH2']]},
+{name:'Chloroethyl',p:[[0,0,'CH2'],[1,0,'Cl']]},{name:'Bromoethyl',p:[[0,0,'CH2'],[1,0,'Br']]},
+{name:'Iodoethyl',p:[[0,0,'CH2'],[1,0,'I']]},{name:'Fluoroethyl',p:[[0,0,'CH2'],[1,0,'F']]},
+{name:'Aminoborane segment',p:[[0,0,'BH2'],[1,0,'NH']]},
+{name:'Phosphine segment',p:[[0,0,'PH'],[1,0,'CH3']]},
+{name:'Branched alkyl',p:[[0,0,'CH'],[0,1,'CH3'],[1,0,'CH3']]},
+{name:'Sulfur chain',p:[[0,0,'S'],[1,0,'S']]},
+{name:'Boron hydride pair',p:[[0,0,'BH2'],[1,0,'BH2']]}
+];
+const els={board:document.getElementById('board'),preview:document.getElementById('preview'),overlay:document.getElementById('overlay'),title:document.getElementById('overlaytitle'),body:document.getElementById('overlaybody'),start:document.getElementById('start'),score:document.getElementById('score'),molecules:document.getElementById('molecules'),level:document.getElementById('level'),best:document.getElementById('best'),longest:document.getElementById('longest'),achievement:document.getElementById('achievement'),feed:document.getElementById('feed'),nextname:document.getElementById('nextname')};
+const ctx=els.board.getContext('2d'),px=els.preview.getContext('2d');
+let grid=[],pieces=[],active=null,next=null,playing=false,paused=false,score=0,moleculeCount=0,level=1,maxSize=0,timer=null,fragmentId=1,best=0,clock=0;
+try{best=Number(localStorage.getItem('molecular-tetris-elements-best'))||0}catch(e){}
+const DIRECTIONS=[[1,0],[-1,0],[0,1],[0,-1]],key=(x,y)=>x+','+y;
+function emptyGrid(){return Array.from({length:H},()=>Array(W).fill(null))}
+function deepPiece(t){return {name:t.name,p:t.p.map(a=>[...a]),x:Math.floor(W/2)-1,y:0}}
+function choose(){return deepPiece(TEMPLATES[Math.floor(Math.random()*TEMPLATES.length)])}
+function valid(p,x=p.x,y=p.y){return p.p.every(([a,b])=>a+x>=0&&a+x<W&&b+y>=0&&b+y<H&&(b+y<0||!grid[b+y][a+x]))}
+function rotated(p){const r=p.p.map(([x,y,t])=>[-y,x,t]);let minX=Math.min(...r.map(a=>a[0])),minY=Math.min(...r.map(a=>a[1]));return r.map(([x,y,t])=>[x-minX,y-minY,t])}
+function rotate(){if(!playing||paused||!active)return;const p=rotated(active);for(const kick of [0,-1,1,-2,2])if(valid({p,x:active.x+kick,y:active.y},active.x+kick,active.y)){active.p=p;active.x+=kick;render();return}}
+function move(dx,dy){if(!playing||paused||!active)return false;if(valid(active,active.x+dx,active.y+dy)){active.x+=dx;active.y+=dy;render();return true}if(dy===1){lock();return false}return false}
+function hardDrop(){if(!playing||paused)return;let n=0;while(valid(active,active.x,active.y+1)){active.y++;n++}score+=n*2;lock()}
+function isAdjacent(a,b){return Math.abs(a.x-b.x)+Math.abs(a.y-b.y)===1}
+function addBond(a,b){if(!a||!b||a.id===b.id||a.neighbors.has(b.id)||a.neighbors.size>=VAL[a.type]||b.neighbors.size>=VAL[b.type])return false;a.neighbors.add(b.id);b.neighbors.add(a.id);return true}
+function nodes(){return grid.flat().filter(Boolean)}
+function connectNearby(preferIds){let ns=nodes(),byPos=new Map(ns.map(a=>[key(a.x,a.y),a]));let potentials=[];for(let a of ns)for(let [dx,dy] of [[1,0],[0,1]]){let b=byPos.get(key(a.x+dx,a.y+dy));if(b&&!a.neighbors.has(b.id))potentials.push([a,b])}
+ potentials.sort((u,v)=>Number(v.some(a=>preferIds.has(a.id)))-Number(u.some(a=>preferIds.has(a.id))));
+ for(let [a,b] of potentials)addBond(a,b);
+}
+function component(start,byId,seen){const out=[],q=[start];seen.add(start.id);while(q.length){const a=q.pop();out.push(a);for(let id of a.neighbors){const b=byId.get(id);if(b&&!seen.has(id)){seen.add(id);q.push(b)}}}return out}
+function formulas(comp){let counts={};for(let n of comp)for(let [z,v] of Object.entries(FORMULA[n.type]))counts[z]=(counts[z]||0)+v;return ['C','H','B','N','O','F','P','S','Cl','Br','I'].filter(e=>counts[e]).map(e=>e+(counts[e]===1?'':counts[e])).join('')}
+function fingerprint(comp){let edges=[];const lookup=new Map(comp.map(c=>[c.id,c]));for(let a of comp)for(let id of a.neighbors)if(id>a.id&&lookup.has(id))edges.push([a.type,lookup.get(id).type].sort().join('-'));return edges.sort().join('|')}
+const KNOWN={
+ 'CH3-CH3':'Ethane', 'CH3-OH':'Methanol','CH3-NH2':'Methylamine','CH3-F':'Fluoromethane','F-H':'Hydrogen fluoride','H-OH':'Water','H-NH2':'Ammonia',
+ 'CH2-CH3|CH2-CH3':'Propane','CH2-CH3|CH2-OH':'Ethanol','CH2-CH3|CH2-NH2':'Ethylamine','CH2-CH3|CH2-F':'Fluoroethane',
+ 'CH2-CH3|CH2-O|CH3-O':'Dimethyl ether (fragment graph)',
+ 'CH3-O|CH3-O':'Dimethyl ether',
+ 'CH3-Cl':'Chloromethane','CH3-Br':'Bromomethane','CH3-I':'Iodomethane','CH3-SH':'Methanethiol','CH3-PH2':'Methylphosphine','BH2-H':'Borane fragment',
+ 'Cl-H':'Hydrogen chloride','Br-H':'Hydrogen bromide','H-I':'Hydrogen iodide','H-SH':'Hydrogen sulfide','H-PH2':'Phosphine',
+ 'CH2-CH2|CH2-CH3|CH2-CH3':'Butane',
+ 'CH-CH3|CH-CH3|CH-CH3':'2-Methylpropane'
+};
+function exactName(comp){const s=fingerprint(comp);return KNOWN[s]||'Molecule'}
+// Deterministic, valid graph traversal SMILES for the simplified single-bond model.
+// This is a noncanonical SMILES; the game does not perform aromaticity or stereochemistry perception.
+function smiles(comp){
+ const byId=new Map(comp.map(a=>[a.id,a]));
+ const ids=[...byId.keys()].sort((a,b)=>a-b);
+ const visited=new Set(),tree=new Map(),rings=new Map(),ringSeen=new Set();
+ let ringNo=0;
+ function adjacent(id){return [...byId.get(id).neighbors].filter(n=>byId.has(n)).sort((a,b)=>a-b)}
+ function explore(id,parent){
+   visited.add(id);let kids=[];tree.set(id,kids);
+   for(const nb of adjacent(id)){
+     if(nb===parent)continue;
+     const edge=[id,nb].sort((a,b)=>a-b).join(':');
+     if(!visited.has(nb)){kids.push(nb);explore(nb,id)}
+     else if(!ringSeen.has(edge)){
+       ringSeen.add(edge);const n=++ringNo;
+       for(const v of [id,nb]){if(!rings.has(v))rings.set(v,[]);rings.get(v).push(n)}
+     }
+   }
+ }
+ for(const id of ids)if(!visited.has(id))explore(id,null);
+ function symbol(type){
+   if(type==='H')return '[H]';
+   if(type==='BH2')return '[BH2]';if(type==='BH')return '[BH]';
+   if(type==='PH2')return '[PH2]';if(type==='PH')return '[PH]';
+   if(type==='SH')return '[SH]';
+   if(type==='C'||type==='CH'||type==='CH2'||type==='CH3')return 'C';
+   if(type==='N'||type==='NH'||type==='NH2')return 'N';
+   if(type==='O'||type==='OH')return 'O';
+   return type;
+ }
+ function ringLabel(n){return n<10?String(n):'%'+String(n)}
+ function renderNode(id){
+   const node=byId.get(id);let out=symbol(node.type);
+   for(const r of (rings.get(id)||[]).sort((a,b)=>a-b))out+=ringLabel(r);
+   const kids=tree.get(id)||[];
+   for(let i=0;i<kids.length;i++){
+     const segment=renderNode(kids[i]);out+=i===kids.length-1?segment:'('+segment+')';
+   }
+   return out;
+ }
+ return ids.filter(id=>!ids.some(x=>(tree.get(x)||[]).includes(id))).map(renderNode).join('.');
+}
+
+function notify(name,formula,points,smilesText,warning=false){let div=document.createElement('div');div.className='event'+(warning?' warning':'');let line=document.createElement('strong');line.textContent=name+' · '+formula;div.append(line);let code=document.createElement('code');code.textContent='SMILES: '+smilesText;div.append(code);let small=document.createElement('small');small.textContent='+'+points+' points';div.append(small);if(els.feed.firstElementChild&&els.feed.firstElementChild.className==='hint')els.feed.innerHTML='';els.feed.prepend(div);while(els.feed.children.length>8)els.feed.lastElementChild.remove()}
+function removeCompleted(){let changed=true,chain=0;while(changed&&chain<8){changed=false;chain++;const all=nodes(),byId=new Map(all.map(a=>[a.id,a])),seen=new Set();const toRemove=[];for(let a of all){if(seen.has(a.id))continue;const comp=component(a,byId,seen);if(comp.length<2||!comp.every(n=>n.neighbors.size===VAL[n.type]))continue;
+let heavy=comp.reduce((n,a)=>n+Object.entries(FORMULA[a.type]).reduce((n,[el,count])=>n+(el==='H'?0:count),0),0);
+
+let bonus=comp.length*comp.length*20;score+=bonus;moleculeCount++;maxSize=Math.max(maxSize,heavy);notify(exactName(comp),formulas(comp),bonus,smiles(comp));toRemove.push(...comp);changed=true;
+}if(changed){const removed=new Set(toRemove.map(a=>a.id));for(let a of toRemove){grid[a.y][a.x]=null}for(let a of nodes())for(let id of [...a.neighbors])if(removed.has(id))a.neighbors.delete(id);
+// Retain rigid molecular fragments: removing a completed molecule does not move other connected groups.
+}}
+level=1+Math.floor(moleculeCount/4);}
+function lock(){if(!active)return;let newNodes=[],p=active;for(let [dx,dy,type] of p.p){let x=p.x+dx,y=p.y+dy;if(y<0){endGame();return}const a={id:fragmentId++,x,y,type,neighbors:new Set()};grid[y][x]=a;newNodes.push(a)}
+// Bonds inside a piece are formed before contacts with existing pieces.
+for(let i=0;i<newNodes.length;i++)for(let j=i+1;j<newNodes.length;j++)if(isAdjacent(newNodes[i],newNodes[j]))addBond(newNodes[i],newNodes[j]);
+connectNearby(new Set(newNodes.map(n=>n.id)));removeCompleted();active=next;next=choose();active.x=Math.floor((W-Math.max(...active.p.map(n=>n[0]))-1)/2);active.y=0;if(!valid(active))endGame();update();render();reschedule()}
+function reschedule(){clearInterval(timer);if(playing&&!paused)timer=setInterval(()=>move(0,1),Math.max(120,730-(level-1)*55))}
+function endGame(){playing=false;paused=false;clearInterval(timer);if(score>best){best=score;try{localStorage.setItem('molecular-tetris-elements-best',String(best))}catch(e){}}update();showOverlay('Reaction complete','The board filled up. Try a different strategy and discover more molecules.','Play again')}
+function showOverlay(title,body,button){els.title.textContent=title;els.body.textContent=body;els.start.textContent=button;els.overlay.classList.remove('hidden')}
+function restart(){clearInterval(timer);grid=emptyGrid();pieces=[];active=choose();next=choose();fragmentId=1;score=0;moleculeCount=0;level=1;maxSize=0;playing=true;paused=false;els.feed.innerHTML='<div class="hint">Completed molecules and their SMILES will appear here.</div>';els.overlay.classList.add('hidden');update();render();reschedule()}
+function pause(){if(!playing)return;paused=!paused;if(paused){clearInterval(timer);showOverlay('Experiment paused','Press P or Resume to continue.','Resume')}else{els.overlay.classList.add('hidden');reschedule()}render()}
+function update(){els.score.textContent=score.toLocaleString();els.molecules.textContent=moleculeCount;els.level.textContent=level;els.best.textContent=Math.max(best,score).toLocaleString();els.longest.textContent=maxSize+' heavy atoms';els.achievement.textContent=moleculeCount>=10?'Molecular architect!':moleculeCount>=5?'Bonding expert!':'';els.nextname.textContent=next?next.name:'—';drawPreview()}
+function rr(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
+function cell(c,x,y,t,size,ghost=false){const px=x*size,py=y*size; c.fillStyle=ghost?'#35506b':COLOR[t];rr(c,px+3,py+3,size-6,size-6,Math.min(8,size*.18));c.fill();c.strokeStyle=ghost?'#6c91aa':'#ffffff25';c.stroke();c.fillStyle=ghost?'#c4d5e2':(t==='H'?'#22334a':'#fff');c.font=`700 ${t.length>2?size*.28:size*.38}px system-ui,sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(DISPLAY[t],px+size/2,py+size/2+1)}
+function bond(c,a,b,size,ghost=false){c.save();c.strokeStyle=ghost?'#86a3bb':'#fff2bc';c.lineWidth=3.5;c.lineCap='round';c.beginPath();c.moveTo((a.x+.5)*size,(a.y+.5)*size);c.lineTo((b.x+.5)*size,(b.y+.5)*size);c.stroke();c.restore()}
+function render(){const size=40;ctx.clearRect(0,0,400,680);ctx.fillStyle='#0c1625';ctx.fillRect(0,0,400,680);ctx.strokeStyle='#26354a';ctx.lineWidth=.7;for(let x=0;x<=W;x++){ctx.beginPath();ctx.moveTo(x*size,0);ctx.lineTo(x*size,H*size);ctx.stroke()}for(let y=0;y<=H;y++){ctx.beginPath();ctx.moveTo(0,y*size);ctx.lineTo(W*size,y*size);ctx.stroke()}
+const all=nodes(),byId=new Map(all.map(a=>[a.id,a]));for(let a of all)for(let id of a.neighbors)if(id>a.id&&byId.has(id))bond(ctx,a,byId.get(id),size);for(let a of all)cell(ctx,a.x,a.y,a.type,size);
+if(active&&playing){let gy=active.y;while(valid(active,active.x,gy+1))gy++;const ghost=active.p.map(([x,y,type])=>({x:x+active.x,y:y+gy,type}));if(gy!==active.y)for(let a of ghost)cell(ctx,a.x,a.y,a.type,size,true);
+const activeNodes=active.p.map(([x,y,type])=>({x:x+active.x,y:y+active.y,type}));for(let i=0;i<activeNodes.length;i++)for(let j=i+1;j<activeNodes.length;j++)if(isAdjacent(activeNodes[i],activeNodes[j]))bond(ctx,activeNodes[i],activeNodes[j],size);for(let a of activeNodes)cell(ctx,a.x,a.y,a.type,size)}
+}
+function drawPreview(){px.clearRect(0,0,210,112);px.fillStyle='#101d2d';px.fillRect(0,0,210,112);if(!next)return;const s=36,minX=Math.min(...next.p.map(n=>n[0])),maxX=Math.max(...next.p.map(n=>n[0])),minY=Math.min(...next.p.map(n=>n[1])),maxY=Math.max(...next.p.map(n=>n[1]));const ox=Math.floor((210-(maxX-minX+1)*s)/2),oy=Math.floor((112-(maxY-minY+1)*s)/2);const arr=next.p.map(([x,y,type])=>({x:x-minX,y:y-minY,type}));px.save();px.translate(ox,oy);for(let i=0;i<arr.length;i++)for(let j=i+1;j<arr.length;j++)if(isAdjacent(arr[i],arr[j]))bond(px,arr[i],arr[j],s);for(let a of arr)cell(px,a.x,a.y,a.type,s);px.restore()}
+window.addEventListener('keydown',e=>{const keys=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','p','P'];if(!keys.includes(e.key))return;const target=e.target;if(target instanceof HTMLButtonElement&&(e.key===' '))return;e.preventDefault();if(e.key==='p'||e.key==='P'){pause();return}if(e.key==='ArrowLeft')move(-1,0);if(e.key==='ArrowRight')move(1,0);if(e.key==='ArrowDown'){if(move(0,1))score++;update()}if(e.key==='ArrowUp')rotate();if(e.key===' ')hardDrop()});
+let touchX=null,touchY=null;els.board.addEventListener('touchstart',e=>{touchX=e.touches[0].clientX;touchY=e.touches[0].clientY},{passive:true});els.board.addEventListener('touchend',e=>{if(touchX===null)return;const dx=e.changedTouches[0].clientX-touchX,dy=e.changedTouches[0].clientY-touchY;if(Math.abs(dx)<20&&Math.abs(dy)<20)rotate();else if(Math.abs(dx)>Math.abs(dy))move(dx>0?1:-1,0);else if(dy>35)hardDrop();touchX=null;touchY=null},{passive:true});
+const bind=(id,fn)=>document.getElementById(id).addEventListener('click',fn);bind('start',()=>paused?pause():restart());bind('restart',restart);bind('pause',pause);bind('left',()=>move(-1,0));bind('right',()=>move(1,0));bind('down',()=>{if(move(0,1))score++;update()});bind('drop',hardDrop);bind('rotate',rotate);
+grid=emptyGrid();next=choose();update();render();
+})();
+</script>
+</body></html>
